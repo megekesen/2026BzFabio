@@ -7,11 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class Intake {
+public class Rollers {
     private DcMotorEx intakeMotor;
     double intakePower = 0.5;
 
-    public Intake(@NonNull HardwareMap hwMap){
+    public Rollers(@NonNull HardwareMap hwMap){
         intakeMotor = hwMap.get(DcMotorEx.class, "intakeMotor");
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

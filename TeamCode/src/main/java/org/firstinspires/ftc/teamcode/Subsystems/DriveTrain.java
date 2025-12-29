@@ -71,7 +71,8 @@ public class DriveTrain {
 
 
         rotational_controller = new PIDFController(rot_kP, rot_kI, rot_kD, 0);
-
+    }
+    public void initializeOdo (@NonNull HardwareMap hwMap){
         pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
         pinpoint.recalibrateIMU();
         pinpoint.setOffsets(10,-16, DistanceUnit.CM);
