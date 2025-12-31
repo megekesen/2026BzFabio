@@ -2,14 +2,15 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import androidx.annotation.NonNull;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
+@Configurable
 public class Rollers {
     private DcMotorEx intakeMotor;
-    double intakePower = 0.5;
+    public static double intakePower = 0.5;
 
     public Rollers(@NonNull HardwareMap hwMap){
         intakeMotor = hwMap.get(DcMotorEx.class, "intakeMotor");

@@ -2,19 +2,32 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import androidx.annotation.NonNull;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-
+@Configurable
 public class Donut {
     private Servo spindexServo;
 
-    public enum SpindexPositions{INTAKE_1, INTAKE_2, INTAKE_3, SHOTER_1, SHOTER_2, SHOTER_3}
+    public enum SpindexPositions{
+        INTAKE_1, INTAKE_2, INTAKE_3, SHOTER_1, SHOTER_2, SHOTER_3;
+        private static final SpindexPositions[] VALUES = values();
+
+        public SpindexPositions next() {
+            return VALUES[(ordinal() + 1) % VALUES.length];
+        }
+
+        public SpindexPositions previous() {
+            return VALUES[(ordinal() - 1 + VALUES.length) % VALUES.length];
+        }
+    }
 
     private SpindexPositions currentPosition;
     private double spindexIntake1 = 0.0;
@@ -32,13 +45,14 @@ public class Donut {
 
     private NormalizedColorSensor colorSensorLeft;
     private NormalizedColorSensor colorSensorRight;
-    public enum BallColor {ORANGE, PURPLE, CONFLICTING}
+    public enum BallColor {GREEN, PURPLE, CONFLICTING, EMPTY}
 
 
     public int lowerPurpleLeve = 0;
     public int upperPurpleLevel = 0;
     public int lowerOrangeLevel = 0;
     public int upperOrangeLevel = 0;
+
 
     public Donut (@NonNull HardwareMap hwMap){
         spindexServo = hwMap.get(Servo.class, "spindexServo");
@@ -75,6 +89,13 @@ public class Donut {
                 break;
         }
     }
+    public void spinSpindex (int direction){
+        if (direction == 1){
+            setSpindexPosition( currentPosition.next());
+        } else if (direction == -1) {
+            setSpindexPosition(currentPosition.previous());
+        }
+    }
     public void setPushUpServoPosition (PushUpPositions pos){
         switch (pos){
             case UP:
@@ -97,7 +118,7 @@ public class Donut {
         if (leftHue >= lowerPurpleLeve && leftHue <= upperPurpleLevel){
             leftColor = BallColor.PURPLE;
         } else if (leftHue >= lowerOrangeLevel && leftHue <= upperOrangeLevel) {
-            leftColor = BallColor.ORANGE;
+            leftColor = BallColor.GREEN;
         } else {
             leftColor = BallColor.CONFLICTING;
         }
@@ -106,7 +127,7 @@ public class Donut {
         if (rightHue >= lowerPurpleLeve && rightHue <= upperPurpleLevel){
             rightColor = BallColor.PURPLE;
         } else if (rightHue >= lowerOrangeLevel && rightHue <= upperOrangeLevel) {
-            rightColor = BallColor.ORANGE;
+            rightColor = BallColor.GREEN;
         } else {
             rightColor = BallColor.CONFLICTING;
         }
@@ -121,6 +142,11 @@ public class Donut {
             return BallColor.CONFLICTING;
         }
 
+    }
+
+    public double getDistance (){
+        DistanceSensor distance = (DistanceSensor) colorSensorRight;
+        return distance.getDistance(DistanceUnit.CM);
     }
 
 

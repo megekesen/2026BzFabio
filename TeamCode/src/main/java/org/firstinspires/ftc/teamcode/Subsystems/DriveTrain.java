@@ -4,45 +4,34 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 
-
+@Configurable
 public class DriveTrain {
     private DcMotorEx leftFront;
     private DcMotorEx rightFront;
     private DcMotorEx leftBack;
     private DcMotorEx rightBack;
-    private GoBildaPinpointDriver pinpoint;
-    private double angle;
-    private boolean train_pos;
-    private boolean train_on;
-    public double fine_move = 1;
-    private static double lStickX = 0.0;
-    private static double lStickY = 0.0;
-    private static double rStickX = 0.0;
-    private static double rStickY = 0.0;
+
     private static final double TWO_PI = 2 * Math.PI;
-    public static double rot_target = 0;
-    public static double rot = 0;
-    public boolean run_rotational = true;
-    public double update_str_target = 0;
+    private static double rot_target = 0;
+    private static double rotationalPower = 0;
+    private boolean run_rotational = true;
+    private double old_rot_target = 0;
 
     private static PIDFController rotational_controller;
     public static double rot_kP = 0.7;
     public static double rot_kI = 0.0;
     public static double rot_kD = 0.0;
 
-
-    public static double submersibleYaw = - (Math.PI / 2);
-    public static double rungsYaw = 0.0;
-    public static double basketYaw = Math.toRadians(-45);
+    //change these for presets
+    public static double goalHeading = 0.0;
+    public static double humanHEading= 0.0;
 
 
     public DriveTrain(@NonNull HardwareMap hwMap){
@@ -72,49 +61,44 @@ public class DriveTrain {
 
         rotational_controller = new PIDFController(rot_kP, rot_kI, rot_kD, 0);
     }
-    public void initializeOdo (@NonNull HardwareMap hwMap){
-        pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
-        pinpoint.recalibrateIMU();
-        pinpoint.setOffsets(10,-16, DistanceUnit.CM);
-    }
 
 
-    public void reset_odo(boolean reset){
-        if (reset){pinpoint.resetPosAndIMU();}
-    }
-    public void Drive(double lStickX, double lStickY, double rStickX){
+
+    private void Drive(double lStickX, double lStickY, double rStickX, double heading){
 
         // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
         double y = lStickY; // Remember, this is reversed!
         double x = lStickX; // this is strafing
         double rx = rStickX;
         update_run_rotational();
-        rot = 0;
+        if (run_rotational){
+            rotationalPower = Rotational_PID(heading);
+        }
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio, but only when
         // at least one is out of the range [-1, 1]
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double leftFrontPower = ((y + x + rx) / denominator) - rot;
-        double leftRearPower = ((y - x + rx) / denominator) - rot;
-        double rightFrontPower = ((y - x - rx) / denominator) + rot;
-        double rightRearPower = ((y + x - rx) / denominator) + rot;
+        double leftFrontPower = ((y + x + rx) / denominator) - rotationalPower;
+        double leftRearPower = ((y - x + rx) / denominator) - rotationalPower;
+        double rightFrontPower = ((y - x - rx) / denominator) + rotationalPower;
+        double rightRearPower = ((y + x - rx) / denominator) + rotationalPower;
 
         leftFront.setPower(leftFrontPower);
         rightFront.setPower(rightFrontPower);
         leftBack.setPower(leftRearPower);
         rightBack.setPower(rightRearPower);
     }
-
-
-    public void DriveCentric(double lStickX, double lStickY, double rStickX){
-
+    public void DriveCentric(double lStickX, double lStickY, double rStickX, double robotAngle, boolean fineControls){
+        double  fine = 1;
+        if (fineControls){
+            fine = 0.5;
+        }
         // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-        double y = -lStickY; // Remember, this is reversed!
-        double x = lStickX; // this is strafing
-        double rx = rStickX;
-        pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
-        double robotAngle = pinpoint.getHeading(UnnormalizedAngleUnit.RADIANS);
+        double y = -lStickY * fine; // Remember, this is reversed!
+        double x = lStickX * fine; // this is strafing
+        double rx = rStickX * fine;
+
 
         double theta = Math.atan2(y, x);
         double r = Math.hypot(y, x);
@@ -124,41 +108,29 @@ public class DriveTrain {
         double newForward = r * Math.sin(theta);
         double newRight = r * Math.cos(theta);
 
-        Drive(newRight, newForward, rx);
+        Drive(newRight, newForward, rx, robotAngle);
 
     }
-    public void finecontrols(boolean move){
-        if(move && !train_pos){
-            train_on = !train_on;
-            if (train_on) {
-                fine_move = 0.5;
-            } else {
-                fine_move = 1;
-            }
-        }
-        train_pos = move;
-    }
 
-    public double Rotational_PID(){
+    public double Rotational_PID( double currentHeading ){
         double pow = 0;
-        pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
-        double current_pos = pinpoint.getHeading(UnnormalizedAngleUnit.RADIANS);
-        pow = rotational_controller.calculate(current_pos, current_pos + smallestAngleDifference());
+        pow = rotational_controller.calculate(currentHeading, currentHeading + smallestAngleDifference(currentHeading));
 
         if (rotational_controller.atSetPoint()){
             pow = 0;
             run_rotational = false;
         };
+
         return pow;
     }
-    public void update_run_rotational(){
-        if (update_str_target != rot_target){
-            update_str_target = rot_target;
+    private void update_run_rotational(){
+        if (old_rot_target != rot_target){
+            old_rot_target = rot_target;
             run_rotational = true;
         }
     }
 
-    public  double normalizeToTwoPi(double theta) {
+    private  double normalizeToTwoPi(double theta) {
 
         double normalized = theta % TWO_PI;
         if (normalized < 0) {
@@ -167,10 +139,9 @@ public class DriveTrain {
 
         return normalized;
     }
-    public  double smallestAngleDifference() {
-        pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
+    private  double smallestAngleDifference(double heading) {
         // Normalize both angles to [0, 2π)
-        double current = normalizeToTwoPi(pinpoint.getHeading(UnnormalizedAngleUnit.RADIANS));
+        double current = normalizeToTwoPi(heading);
 
         // Compute the difference and normalize to (-π, π]
         double diff = rot_target - current;
@@ -188,15 +159,14 @@ public class DriveTrain {
         rightBack.setPower(power);
         rightFront.setPower(power);
     }
-    public double getYaw(){
-        pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
-        return pinpoint.getHeading(UnnormalizedAngleUnit.RADIANS);
-    }
-    public void train_set_heading_pickup(){
-        rot_target = basketYaw;
+    public void train_set_heading_goal(){
+        rot_target = goalHeading;
     }
     public void train_set_heading_human(){
-        rot_target = submersibleYaw;
+        rot_target = humanHEading;
+    }
+    public void trainSetHEading(double heading){
+        rot_target = heading;
     }
 
 
