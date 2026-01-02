@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.Subsystems.PinPoint;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
-
+@Configurable
 @TeleOp(name = "Turret Test and Tune", group = "Test")
 
 public class TurretTestAndTune extends OpMode {
@@ -32,12 +33,12 @@ public class TurretTestAndTune extends OpMode {
 
     @Override
     public void loop() {
-        turret.setShooterTarget(shooterSpeedTarget);
+        turret.setShooterSpeed(shooterSpeedTarget);
         turret.setHood(hoodPosition);
         turret.setTurretTarget(turretTarget);
 
         if (useLimeLIght){
-            lime.updateAimLL(pin.getYaw());
+            lime.updateAimLL();
             turret.setTurretWithLimelight(lime.getDistance(), lime.getTx());
         }
 

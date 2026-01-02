@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -7,19 +8,17 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Subsystems.DriveTrain;
 import org.firstinspires.ftc.teamcode.Subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.Subsystems.PinPoint;
-
+@Configurable
 @TeleOp(name = "Limelight Test", group = "Tests")
 public class LimelightTest extends OpMode {
     Limelight ll;
-    PinPoint pin;
     String green ="\uD83D\uDFE9";
     String purple = "\uD83D\uDFEA";
 
-    public static int pipeline;
+    public static Limelight.Pipelines pipeline;
     @Override
     public void init() {
         ll = new Limelight(hardwareMap);
-        pin = new PinPoint(hardwareMap);
 
     }
     @Override
@@ -31,7 +30,7 @@ public class LimelightTest extends OpMode {
     @Override
 
     public void loop() {
-        ll.updateAimLL(pin.getYaw());
+        ll.updateAimLL();
         double distance = ll.getDistance();
         int iDNumber = ll.updatePatternLL();
         String pattern = "";

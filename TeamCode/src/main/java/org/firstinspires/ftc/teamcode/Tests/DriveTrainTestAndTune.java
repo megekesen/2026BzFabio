@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode.Tests;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.DriveTrain;
 import org.firstinspires.ftc.teamcode.Subsystems.PinPoint;
-
+@Configurable
 @TeleOp(name = "Limelight Test", group = "Tests")
 public class DriveTrainTestAndTune extends OpMode {
 

@@ -16,6 +16,8 @@ import java.util.List;
 public class Limelight {
     private Limelight3A limelight;
 
+    public enum Pipelines{PATTERN_RECOGNITION, BLUE_TARGET, RED_TARGET}
+
     double scale = 0.0;
     // FOLLOW THIS TUTORIAL TO FIND THE SCALE
     // https://youtu.be/Ap1lBywv00M?si=vfVvohYDsQcFGoUW
@@ -32,8 +34,8 @@ public class Limelight {
         limelight.start();
     }
 
-    public void switchPipeline (int pipeline){
-        limelight.pipelineSwitch(pipeline);
+    public void switchPipeline (Pipelines pipeline){
+        limelight.pipelineSwitch(pipeline.ordinal());
     }
 
     public void stop(){
@@ -42,17 +44,19 @@ public class Limelight {
 
     /**
      * for teleop to get the distance and calculate subsequently the hood extension and shooter speeed;
-     * @param yaw (from pinpoint)
+     * Updates the distance and TX values. you can get them w the respective getter functions
      */
-    public void updateAimLL (double yaw){
-        // get yaw from pinpoint computer, make sure it is in degrees
-        limelight.updateRobotOrientation(yaw);
-        // get latest Limelight result, pipeline 8 for April tag 0
+    public void updateAimLL (){
         LLResult llResult = limelight.getLatestResult();
         if (llResult!= null && llResult.isValid()) {
             distance = getDistanceFromTag(llResult.getTa());
             tx = llResult.getTx();
         }
+    }
+
+    public boolean llCanAim(){
+        LLResult llResult = limelight.getLatestResult();
+        return llResult!= null && llResult.isValid();
     }
 
     /**

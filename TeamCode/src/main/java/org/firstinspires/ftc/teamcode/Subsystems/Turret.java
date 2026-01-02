@@ -10,13 +10,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Configurable
 public class Turret {
-    DcMotorEx shooterMotor;
-    DcMotorEx turretMotor;
-    Servo hoodServo;
+    private DcMotorEx shooterMotor;
+    private DcMotorEx turretMotor;
+    private Servo hoodServo;
 
 
 
-    PIDController speedShooterController;
+    private PIDController speedShooterController;
     public static double shoterP;
     public static double shooterI;
     public static double shooterD;
@@ -25,12 +25,12 @@ public class Turret {
 
 
 
-    PIDController turretController;
+    private PIDController turretController;
     public static double turretP;
     public static double turretI;
     public static double turretD;
 
-    int turretTarget;
+    private double turretTarget;
 
     public Turret(HardwareMap hwMap){
         shooterMotor = hwMap.get(DcMotorEx.class, "shooterMotor");
@@ -58,19 +58,20 @@ public class Turret {
         shooterMotor.setPower(pow);
     }
 
-    public void setShooterTarget (int target){
+    public void setShooterSpeed(int target){
         speedRPMTarget = target;
     }
 
     private void turretPID(){
         double pow = 0;
         double current_pos = turretMotor.getVelocity(); //in ticks per second
+        turretTarget = 0;
         pow = speedShooterController.calculate(current_pos, turretTarget);
 
         turretMotor.setPower(pow);
     }
 
-    public void setTurretTarget (int target){
+    public void setTurretTarget (double target){
         turretTarget = target;
     }
 

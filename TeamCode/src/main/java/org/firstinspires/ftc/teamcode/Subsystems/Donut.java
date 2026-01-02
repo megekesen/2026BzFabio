@@ -15,9 +15,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Configurable
 public class Donut {
     private Servo spindexServo;
-
     public enum SpindexPositions{
-        INTAKE_1, INTAKE_2, INTAKE_3, SHOTER_1, SHOTER_2, SHOTER_3;
+        INTAKE_1, INTAKE_2, INTAKE_3, SHOTER_1, SHOTER_2, SHOTER_3, SHOOTER_1_FROM_3, SHOTER_3_FROM_1;
         private static final SpindexPositions[] VALUES = values();
 
         public SpindexPositions next() {
@@ -35,14 +34,19 @@ public class Donut {
     private double spindexIntake3 = 0.0;
 
     private double spindexShoter1 = 0.0;
+    //could be used to speed up spindex movement so that the spindex does not have to go all the way around when going from 1 to 3
+    // if you do not want to use it look at the commit from the 31 at 4 am(?) and use that instead
+    private double spindexShoter1From3 = 0.0;
     private double spindexShoter2 = 0.0;
     private double spindexShoter3 = 0.0;
+    private double spindexShoter3From1 = 0.0;
 
     private Servo pushUpServo;
     public enum PushUpPositions{UP, DOWN}
     private double pushUpDown = 0.0;
     private double pushUpUp = 0.0;
 
+    private DistanceSensor backDistanceSensor;
     private NormalizedColorSensor colorSensorLeft;
     private NormalizedColorSensor colorSensorRight;
     public enum BallColor {GREEN, PURPLE, CONFLICTING, EMPTY}
@@ -60,6 +64,7 @@ public class Donut {
 
         colorSensorLeft = hwMap.get(NormalizedColorSensor.class, "colorLeft");
         colorSensorRight = hwMap.get(NormalizedColorSensor.class, "colorRight");
+        backDistanceSensor = hwMap.get(DistanceSensor.class, "backDistanceSensor");
     }
     public void setSpindexPosition( SpindexPositions pos){
         switch(pos){
@@ -76,16 +81,26 @@ public class Donut {
                 currentPosition = SpindexPositions.INTAKE_3;
                 break;
             case SHOTER_1:
-                spindexServo.setPosition(spindexShoter1);
-                currentPosition = SpindexPositions.SHOTER_1;
+                if(currentPosition == SpindexPositions.SHOTER_3){
+                    spindexServo.setPosition(spindexShoter1From3);
+                    currentPosition = SpindexPositions.SHOOTER_1_FROM_3;
+                } else{
+                    spindexServo.setPosition(spindexShoter1);
+                    currentPosition = SpindexPositions.SHOTER_1;
+                }
                 break;
             case SHOTER_2:
                 spindexServo.setPosition(spindexShoter2);
                 currentPosition = SpindexPositions.SHOTER_2;
                 break;
             case SHOTER_3:
-                spindexServo.setPosition(spindexShoter3);
-                currentPosition = SpindexPositions.SHOTER_3;
+                if(currentPosition == SpindexPositions.SHOTER_1){
+                    spindexServo.setPosition(spindexShoter3From1);
+                    currentPosition = SpindexPositions.SHOTER_3_FROM_1;
+                } else{
+                    spindexServo.setPosition(spindexShoter3);
+                    currentPosition = SpindexPositions.SHOTER_3;
+                }
                 break;
         }
     }
@@ -144,9 +159,13 @@ public class Donut {
 
     }
 
-    public double getDistance (){
+    public double getFrontDistance(){
         DistanceSensor distance = (DistanceSensor) colorSensorRight;
         return distance.getDistance(DistanceUnit.CM);
+    }
+
+    public double getBackDistance(){
+        return backDistanceSensor.getDistance(DistanceUnit.CM);
     }
 
 
