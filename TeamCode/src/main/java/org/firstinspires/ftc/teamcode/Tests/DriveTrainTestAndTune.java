@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.DriveTrain;
 import org.firstinspires.ftc.teamcode.Subsystems.PinPoint;
 @Configurable
-@TeleOp(name = "Limelight Test", group = "Tests")
+@TeleOp(name = "Drivae train Test", group = "Tests")
 public class DriveTrainTestAndTune extends OpMode {
 
     DriveTrain drive;

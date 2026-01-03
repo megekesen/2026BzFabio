@@ -112,7 +112,7 @@ public class DriveTrain {
 
     }
 
-    public double Rotational_PID( double currentHeading ){
+    private double Rotational_PID( double currentHeading ){
         double pow = 0;
         pow = rotational_controller.calculate(currentHeading, currentHeading + smallestAngleDifference(currentHeading));
 

@@ -46,6 +46,8 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_1);
                 if(switchToNext) {
                     donutSlots[0] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_2);
+
                     timer.reset();
                     intakeState = 1;
                 }
@@ -59,6 +61,8 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_2);
                 if(switchToNext) {
                     donutSlots[1] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_3);
+
                     timer.reset();
                     intakeState = 3;
                 }
@@ -72,6 +76,8 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_3);
                 if(switchToNext) {
                     donutSlots[2] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_1);
+
                     timer.reset();
                     intakeState = 5;
                 }
@@ -91,6 +97,7 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_1);
                 if(switchToNext) {
                     donutSlots[0] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_2);
                     timer.reset();
                     intakeState = 1;
                 }
@@ -104,6 +111,7 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_2);
                 if(switchToNext) {
                     donutSlots[1] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_3);
                     timer.reset();
                     intakeState = 3;
                 }
@@ -117,6 +125,7 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_3);
                 if(switchToNext) {
                     donutSlots[2] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_1);
                     timer.reset();
                     intakeState = 5;
                 }
@@ -137,6 +146,8 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_1);
                 if(switchToNext) {
                     donutSlots[0] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_2);
+
                     timer.reset();
                     intakeState = 1;
                 }
@@ -150,6 +161,8 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_2);
                 if(switchToNext) {
                     donutSlots[1] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_3);
+
                     timer.reset();
                     intakeState = 3;
                 }
@@ -163,6 +176,8 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_3);
                 if(switchToNext) {
                     donutSlots[2] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_1);
+
                     timer.reset();
                     intakeState = 5;
                 }
@@ -184,6 +199,7 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_1);
                 if(switchToNext) {
                     donutSlots[0] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_2);
                     timer.reset();
                     intakeState = 1;
                 }
@@ -197,6 +213,7 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_2);
                 if(switchToNext) {
                     donutSlots[1] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_3);
                     timer.reset();
                     intakeState = 3;
                 }
@@ -210,6 +227,8 @@ public class Supersystems {
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_3);
                 if(switchToNext) {
                     donutSlots[2] = donut.getColor();
+                    donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_1);
+
                     timer.reset();
                     intakeState = 5;
                 }
@@ -226,6 +245,7 @@ public class Supersystems {
      */
     public void resetIntake(){
         intakeState = 0;
+        setSlotsToEmpty();
     }
     /**
      * use before starting the shooting to reset the state to 0
@@ -420,8 +440,9 @@ public class Supersystems {
         donutSlots[0] = Donut.BallColor.EMPTY;
         donutSlots[2] = Donut.BallColor.EMPTY;
         donutSlots[3] = Donut.BallColor.EMPTY;
-
     }
+
+
 
     public void updateTurretPIDs(){
         turret.update();

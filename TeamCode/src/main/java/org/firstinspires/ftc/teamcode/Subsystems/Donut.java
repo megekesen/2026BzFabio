@@ -54,8 +54,8 @@ public class Donut {
 
     public int lowerPurpleLeve = 0;
     public int upperPurpleLevel = 0;
-    public int lowerOrangeLevel = 0;
-    public int upperOrangeLevel = 0;
+    public int lowerGreenLevel = 0;
+    public int upperGreenLevel = 0;
 
 
     public Donut (@NonNull HardwareMap hwMap){
@@ -132,7 +132,7 @@ public class Donut {
         double leftHue = JavaUtil.colorToHue(leftNormalizedColor.toColor());
         if (leftHue >= lowerPurpleLeve && leftHue <= upperPurpleLevel){
             leftColor = BallColor.PURPLE;
-        } else if (leftHue >= lowerOrangeLevel && leftHue <= upperOrangeLevel) {
+        } else if (leftHue >= lowerGreenLevel && leftHue <= upperGreenLevel) {
             leftColor = BallColor.GREEN;
         } else {
             leftColor = BallColor.CONFLICTING;
@@ -141,7 +141,7 @@ public class Donut {
         double rightHue = JavaUtil.colorToHue(rightNormalizedColor.toColor());
         if (rightHue >= lowerPurpleLeve && rightHue <= upperPurpleLevel){
             rightColor = BallColor.PURPLE;
-        } else if (rightHue >= lowerOrangeLevel && rightHue <= upperOrangeLevel) {
+        } else if (rightHue >= lowerGreenLevel && rightHue <= upperGreenLevel) {
             rightColor = BallColor.GREEN;
         } else {
             rightColor = BallColor.CONFLICTING;

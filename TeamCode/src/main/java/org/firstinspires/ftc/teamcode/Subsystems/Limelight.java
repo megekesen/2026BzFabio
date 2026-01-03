@@ -24,8 +24,6 @@ public class Limelight {
 
     private double distance = 0.0;
     private double tx = 0.0;
-
-    private Pose3D botpose;
     public Limelight(@NonNull HardwareMap hardwareMap){
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
     }

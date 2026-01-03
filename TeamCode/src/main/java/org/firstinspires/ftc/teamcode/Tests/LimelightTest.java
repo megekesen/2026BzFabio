@@ -15,7 +15,7 @@ public class LimelightTest extends OpMode {
     String green ="\uD83D\uDFE9";
     String purple = "\uD83D\uDFEA";
 
-    public static Limelight.Pipelines pipeline;
+    public static Limelight.Pipelines pipeline = Limelight.Pipelines.PATTERN_RECOGNITION;
     @Override
     public void init() {
         ll = new Limelight(hardwareMap);
