@@ -25,6 +25,14 @@ public class Turret {
 
 
 
+    private PIDController turretLLController;
+
+    public static double turretLLP;
+    public static double turretLLI;
+    public static double turretLLD;
+
+    private double turretLLTarget;
+
     private PIDController turretController;
     public static double turretP;
     public static double turretI;
@@ -36,17 +44,18 @@ public class Turret {
         shooterMotor = hwMap.get(DcMotorEx.class, "shooterMotor");
         shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooterMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         turretMotor = hwMap.get(DcMotorEx.class, "turretMotor");
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         hoodServo = hwMap.get(Servo.class, "hoodServo");
         speedShooterController = new PIDController(shoterP, shooterI, shooterD);
+        turretLLController = new PIDController(turretLLP, turretLLI, turretLLD);
         turretController = new PIDController(turretP, turretI, turretD);
     }
 
@@ -62,16 +71,27 @@ public class Turret {
         speedRPMTarget = target;
     }
 
-    private void turretPID(){
+    private void turretLLPID(){
         double pow = 0;
-        double current_pos = turretMotor.getVelocity(); //in ticks per second
-        turretTarget = 0;
-        pow = speedShooterController.calculate(current_pos, turretTarget);
+        double current_pos = turretMotor.getCurrentPosition(); //in ticks per second
+        pow = turretLLController.calculate(current_pos, turretLLTarget);
 
         turretMotor.setPower(pow);
     }
 
-    public void setTurretTarget (double target){
+    public void setTurretLLTarget(double target){
+        turretLLTarget = target;
+    }
+
+    private void turretPID(){
+        double pow = 0;
+        double current_pos = turretMotor.getCurrentPosition(); //in ticks per second
+        pow = turretController.calculate(current_pos, turretTarget);
+
+        turretMotor.setPower(pow);
+    }
+
+    public void setTurretTarget(double target){
         turretTarget = target;
     }
 
@@ -84,11 +104,17 @@ public class Turret {
         //if this does not work, picka spot of the field, find the optimal hood position
         // and roller speed, keep the turret from spinning
         // and just use that always
+
+        turretLLTarget = tx;
     }
     public boolean isReadyToShoot(){
         return speedShooterController.atSetPoint();
     }
 
+    public void updateLL(){
+        shooterPID();
+        turretLLPID();
+    }
     public void update(){
         shooterPID();
         turretPID();

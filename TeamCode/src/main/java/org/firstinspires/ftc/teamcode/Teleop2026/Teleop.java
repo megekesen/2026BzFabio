@@ -56,6 +56,7 @@ public class Teleop extends OpMode {
 
         switch (currentState){
             case PREINTAKE:
+                supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.ENCODER);
                 supersystems.setRollers(true);
                 supersystems.resetIntake();
                 currentState = States.INTAKE;
@@ -65,6 +66,7 @@ public class Teleop extends OpMode {
                 supersystems.intakeWithDistance(timer);
                 break;
             case PRESHOOTING:
+                supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.LL);
                 supersystems.ll.start();
                 supersystems.train.trainSetHEading(scoreHeading);
                 supersystems.resetScore();

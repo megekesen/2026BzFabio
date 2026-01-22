@@ -43,5 +43,6 @@ public class TurretTestAndTune extends OpMode {
         }
 
         turret.update();
+        turret.updateLL();
     }
 }

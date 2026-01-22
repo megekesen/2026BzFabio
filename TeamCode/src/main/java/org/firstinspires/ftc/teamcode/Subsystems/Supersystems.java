@@ -4,6 +4,8 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
+
 import java.util.Arrays;
 
 @Configurable
@@ -25,6 +27,8 @@ public class Supersystems {
     public static double turretPositionForIntake = 0.0;
     public static double hoodPositionForIntake = 0.0;
     public static int shooterSpeedForIntake = -0;
+    public static enum TURRET_UPDATE_MODE {LL, ENCODER};
+    private TURRET_UPDATE_MODE updateMode = TURRET_UPDATE_MODE.ENCODER;
 
 
     public Supersystems(HardwareMap hwMap, boolean isThisAutonomous){
@@ -138,7 +142,7 @@ public class Supersystems {
     }
 
     public void intakeFromShooter(boolean switchToNext, ElapsedTime timer){
-        turret.setTurretTarget(turretPositionForIntake);
+        turret.setTurretLLTarget(turretPositionForIntake);
         turret.setHood(hoodPositionForIntake);
         turret.setShooterSpeed(shooterSpeedForIntake);
         switch (intakeState){
@@ -190,7 +194,7 @@ public class Supersystems {
     }
 
     public void intakeWithDistanceFromShooter(ElapsedTime timer){
-        turret.setTurretTarget(turretPositionForIntake);
+        turret.setTurretLLTarget(turretPositionForIntake);
         turret.setHood(hoodPositionForIntake);
         turret.setShooterSpeed(shooterSpeedForIntake);
         boolean switchToNext = donut.getBackDistance() < 10.0;
@@ -435,17 +439,21 @@ public class Supersystems {
         turret.setTurretWithLimelight(ll.getDistance(), ll.getTx());
     }
 
-
     private void setSlotsToEmpty(){
         donutSlots[0] = Donut.BallColor.EMPTY;
         donutSlots[2] = Donut.BallColor.EMPTY;
         donutSlots[3] = Donut.BallColor.EMPTY;
     }
 
-
-
+    public void setTurretUpdateMode(TURRET_UPDATE_MODE t){
+        updateMode = t;
+    }
     public void updateTurretPIDs(){
-        turret.update();
+        if(updateMode == TURRET_UPDATE_MODE.ENCODER){
+            turret.update();
+        } else if (updateMode == TURRET_UPDATE_MODE.LL) {
+            turret.updateLL();
+        }
     }
     public void updateLLForSHooting(){
         ll.updateAimLL();
