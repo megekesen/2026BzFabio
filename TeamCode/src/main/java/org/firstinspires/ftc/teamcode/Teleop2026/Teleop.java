@@ -85,6 +85,7 @@ public class Teleop extends OpMode {
                 supersystems.updateLLForSHooting();
                 break;
             case SIDE:
+                supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.ENCODER);
                 supersystems.train.trainSetHEading(sideHeading);
                 supersystems.intakeWithDistanceFromShooter(timer);
                 break;

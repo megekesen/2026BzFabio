@@ -194,7 +194,7 @@ public class Supersystems {
     }
 
     public void intakeWithDistanceFromShooter(ElapsedTime timer){
-        turret.setTurretLLTarget(turretPositionForIntake);
+        turret.setTurretTarget(turretPositionForIntake);
         turret.setHood(hoodPositionForIntake);
         turret.setShooterSpeed(shooterSpeedForIntake);
         boolean switchToNext = donut.getBackDistance() < 10.0;

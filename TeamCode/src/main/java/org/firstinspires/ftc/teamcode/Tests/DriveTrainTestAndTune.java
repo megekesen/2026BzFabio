@@ -35,6 +35,7 @@ public class DriveTrainTestAndTune extends OpMode {
 
         telemetry.addData("Current Heading" , pin.getYaw());
         telemetry.addData("Target Heading ", heading);
+        telemetry.update();
 
     }
 }

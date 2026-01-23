@@ -45,6 +45,7 @@ public class LimelightTest extends OpMode {
         telemetry.addData("Distance " , distance);
         telemetry.addData("ID NUmber ", iDNumber);
         telemetry.addData("Pattern ", pattern);
+        telemetry.update();
     }
 
     @Override

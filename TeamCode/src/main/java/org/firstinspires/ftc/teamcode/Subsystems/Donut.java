@@ -46,12 +46,12 @@ public class Donut {
     private double pushUpDown = 0.0;
     private double pushUpUp = 0.0;
 
-    private DistanceSensor backDistanceSensor;
-    private NormalizedColorSensor colorSensorLeft;
-    private NormalizedColorSensor colorSensorRight;
+    public DistanceSensor backDistanceSensor;
+    public  NormalizedColorSensor colorSensorLeft;
+    public NormalizedColorSensor colorSensorRight;
     public enum BallColor {GREEN, PURPLE, CONFLICTING, EMPTY}
 
-
+    // all of these are hue values
     public int lowerPurpleLeve = 0;
     public int upperPurpleLevel = 0;
     public int lowerGreenLevel = 0;
@@ -121,6 +121,11 @@ public class Donut {
                 break;
         }
 
+    }
+
+    public double getHueFromSensor (NormalizedColorSensor n){
+        NormalizedRGBA rgba = n.getNormalizedColors();
+        return JavaUtil.colorToHue(rgba.toColor());
     }
     public BallColor getColor(){
         NormalizedRGBA leftNormalizedColor = colorSensorLeft.getNormalizedColors();

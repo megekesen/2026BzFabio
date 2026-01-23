@@ -16,5 +16,6 @@ public class TeleOpMessangerTest extends OpMode {
     public void loop() {
         telemetry.addData("ALliance color ", Messanger.allianceColor);
         telemetry.addData("Sequence", Messanger.sequence);
+        telemetry.update();
     }
 }
