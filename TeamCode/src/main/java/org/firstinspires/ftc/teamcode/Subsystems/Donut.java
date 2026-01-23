@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import androidx.annotation.NonNull;
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -41,6 +42,11 @@ public class Donut {
     private double spindexShoter3 = 0.0;
     private double spindexShoter3From1 = 0.0;
 
+    private PIDController spindexController;
+    public static double spindexP;
+    public static double spindexI;
+    public static double spindexD;
+
     private Servo pushUpServo;
     public enum PushUpPositions{UP, DOWN}
     private double pushUpDown = 0.0;
@@ -62,9 +68,11 @@ public class Donut {
         spindexServo = hwMap.get(Servo.class, "spindexServo");
         pushUpServo = hwMap.get(Servo.class, "pushUpServo");
 
-        colorSensorLeft = hwMap.get(NormalizedColorSensor.class, "colorLeft");
-        colorSensorRight = hwMap.get(NormalizedColorSensor.class, "colorRight");
+        colorSensorLeft = hwMap.get(NormalizedColorSensor.class, "colorSpindex");
+        colorSensorRight = hwMap.get(NormalizedColorSensor.class, "colorRamp");
         backDistanceSensor = hwMap.get(DistanceSensor.class, "backDistanceSensor");
+
+        spindexController = new PIDController()
     }
     public void setSpindexPosition( SpindexPositions pos){
         switch(pos){
