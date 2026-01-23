@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,6 +16,7 @@ public class LimelightTest extends OpMode {
     Limelight ll;
     String green ="\uD83D\uDFE9";
     String purple = "\uD83D\uDFEA";
+    private TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
     public static Limelight.Pipelines pipeline = Limelight.Pipelines.PATTERN_RECOGNITION;
     @Override
@@ -42,10 +45,10 @@ public class LimelightTest extends OpMode {
             pattern = purple + purple + green;
         }
 
-        telemetry.addData("Distance " , distance);
-        telemetry.addData("ID NUmber ", iDNumber);
-        telemetry.addData("Pattern ", pattern);
-        telemetry.update();
+        telemetryM.debug("Distance " + distance);
+        telemetryM.debug("ID NUmber "+ iDNumber);
+        telemetryM.debug("Pattern "+ pattern);
+        telemetryM.update(telemetry);
     }
 
     @Override

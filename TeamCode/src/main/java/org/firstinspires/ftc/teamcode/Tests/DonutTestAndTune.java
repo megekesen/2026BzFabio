@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.panels.Panels;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,7 +16,9 @@ public class DonutTestAndTune extends OpMode {
     Donut donut;
     Rollers rollers;
     public static Donut.SpindexPositions position = Donut.SpindexPositions.INTAKE_1;
-    public static Donut.PushUpPositions pushup = Donut.PushUpPositions.UP;
+    public static Donut.PushUpPositions pushup = Donut.PushUpPositions.DOWN;
+    private TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
     public static boolean setRollers = false;
     @Override
     public void init() {
@@ -25,10 +30,14 @@ public class DonutTestAndTune extends OpMode {
     public void loop() {
         donut.setSpindexPosition(position);
         donut.setPushUpServoPosition(pushup);
-        telemetry.addData("color sensor left", donut.getHueFromSensor(donut.colorSensorLeft));
-        telemetry.addData("color sensor right", donut.getHueFromSensor(donut.colorSensorLeft));
-        telemetry.addData("front Distance Sensor", donut.getFrontDistance());
-        telemetry.addData("back Distance Sensor", donut.getBackDistance());
+        telemetryM.debug("color sensor left " + donut.getHueFromSensor(donut.colorSensorLeft));
+        telemetryM.debug("color sensor right "+ donut.getHueFromSensor(donut.colorSensorLeft));
+        telemetryM.debug("front Distance Sensor "+ donut.getFrontDistance());
+        telemetryM.debug("back Distance Sensor "+ donut.getBackDistance());
+        telemetryM.debug("SPindex target "+ donut.spindexTarget);
+        telemetryM.debug("Spindex current "+ donut.spindexMotor.getCurrentPosition());
+        telemetryM.debug("COLOR SEEN" + donut.getColor());
+        telemetryM.debug();
 
         if(setRollers){
             rollers.enableIntake();
@@ -37,6 +46,8 @@ public class DonutTestAndTune extends OpMode {
 
         }
 
-        telemetry.update();
+        telemetryM.update(telemetry);
+        donut.update();
+
     }
 }

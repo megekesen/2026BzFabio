@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -15,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Configurable
 public class Donut {
-    private Servo spindexServo;
+    public DcMotorEx spindexMotor;
     public enum SpindexPositions{
         INTAKE_1, INTAKE_2, INTAKE_3, SHOTER_1, SHOTER_2, SHOTER_3, SHOOTER_1_FROM_3, SHOTER_3_FROM_1;
         private static final SpindexPositions[] VALUES = values();
@@ -30,27 +33,29 @@ public class Donut {
     }
 
     private SpindexPositions currentPosition;
-    private double spindexIntake1 = 0.0;
-    private double spindexIntake2 = 0.0;
-    private double spindexIntake3 = 0.0;
+    public static int spindexIntake1 = 0;
+    public static int spindexIntake2 = 100;
+    public static int spindexIntake3 = 195;
 
-    private double spindexShoter1 = 0.0;
+    public static int spindexShoter1 = 140;
     //could be used to speed up spindex movement so that the spindex does not have to go all the way around when going from 1 to 3
     // if you do not want to use it look at the commit from the 31 at 4 am(?) and use that instead
-    private double spindexShoter1From3 = 0.0;
-    private double spindexShoter2 = 0.0;
-    private double spindexShoter3 = 0.0;
-    private double spindexShoter3From1 = 0.0;
+    public static int spindexShoter1From3 = 435;
+    public static int spindexShoter2 = 240;
+    public static int spindexShoter3 = 335;
+    public static int spindexShoter3From1 = 48;
 
     private PIDController spindexController;
-    public static double spindexP;
-    public static double spindexI;
+    public static double spindexP = 0.04;
+    public static double spindexI = 0.0005;
     public static double spindexD;
+
+    public static int spindexTarget;
 
     private Servo pushUpServo;
     public enum PushUpPositions{UP, DOWN}
-    private double pushUpDown = 0.0;
-    private double pushUpUp = 0.0;
+    public static double pushUpDown = 0.605;
+    public static double pushUpUp = 0.66;
 
     public DistanceSensor backDistanceSensor;
     public  NormalizedColorSensor colorSensorLeft;
@@ -58,60 +63,87 @@ public class Donut {
     public enum BallColor {GREEN, PURPLE, CONFLICTING, EMPTY}
 
     // all of these are hue values
-    public int lowerPurpleLeve = 0;
-    public int upperPurpleLevel = 0;
-    public int lowerGreenLevel = 0;
-    public int upperGreenLevel = 0;
+    public double lowerPurpleLeve = 210;
+    public double upperPurpleLevel = 260;
+    public double lowerGreenLevel = 140;
+    public double upperGreenLevel = 170;
 
 
     public Donut (@NonNull HardwareMap hwMap){
-        spindexServo = hwMap.get(Servo.class, "spindexServo");
+        spindexMotor = hwMap.get(DcMotorEx.class, "spindexMotor");
+        spindexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        spindexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        spindexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        spindexMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         pushUpServo = hwMap.get(Servo.class, "pushUpServo");
 
-        colorSensorLeft = hwMap.get(NormalizedColorSensor.class, "colorSpindex");
-        colorSensorRight = hwMap.get(NormalizedColorSensor.class, "colorRamp");
+        colorSensorLeft = hwMap.get(NormalizedColorSensor.class, "colorRight");
+        colorSensorRight = hwMap.get(NormalizedColorSensor.class, "colorLeft");
         backDistanceSensor = hwMap.get(DistanceSensor.class, "backDistanceSensor");
 
-        spindexController = new PIDController()
+        spindexController = new PIDController(spindexP, spindexI, spindexD);
     }
     public void setSpindexPosition( SpindexPositions pos){
         switch(pos){
             case INTAKE_1 :
-                spindexServo.setPosition(spindexIntake1);
+                spindexTarget = spindexIntake1;
                 currentPosition = SpindexPositions.INTAKE_1;
                 break;
             case INTAKE_2:
-                spindexServo.setPosition(spindexIntake2);
+                spindexTarget = spindexIntake2;
                 currentPosition = SpindexPositions.INTAKE_2;
                 break;
             case INTAKE_3:
-                spindexServo.setPosition(spindexIntake3);
+                spindexTarget = spindexIntake3;
                 currentPosition = SpindexPositions.INTAKE_3;
                 break;
             case SHOTER_1:
                 if(currentPosition == SpindexPositions.SHOTER_3){
-                    spindexServo.setPosition(spindexShoter1From3);
+                    spindexTarget = spindexShoter1From3;
                     currentPosition = SpindexPositions.SHOOTER_1_FROM_3;
                 } else{
-                    spindexServo.setPosition(spindexShoter1);
+                    spindexTarget = spindexShoter1;
                     currentPosition = SpindexPositions.SHOTER_1;
                 }
                 break;
             case SHOTER_2:
-                spindexServo.setPosition(spindexShoter2);
+                spindexTarget = spindexShoter2;
                 currentPosition = SpindexPositions.SHOTER_2;
                 break;
             case SHOTER_3:
                 if(currentPosition == SpindexPositions.SHOTER_1){
-                    spindexServo.setPosition(spindexShoter3From1);
+                    spindexTarget = spindexShoter3From1;
                     currentPosition = SpindexPositions.SHOTER_3_FROM_1;
                 } else{
-                    spindexServo.setPosition(spindexShoter3);
+                    spindexTarget = spindexShoter3;
                     currentPosition = SpindexPositions.SHOTER_3;
                 }
                 break;
+            case SHOTER_3_FROM_1:
+                spindexTarget = spindexShoter3From1;
+                currentPosition = SpindexPositions.SHOTER_3_FROM_1;
+                break;
+            case SHOOTER_1_FROM_3:
+                spindexTarget = spindexShoter1From3;
+                currentPosition = SpindexPositions.SHOOTER_1_FROM_3;
+                break;
+
         }
     }
+
+    public void donutPID (){
+        spindexController.setPID(spindexP, spindexI, spindexD);
+        double pow = 0;
+        double current_pos = spindexMotor.getCurrentPosition(); //in ticks per second
+        pow = spindexController.calculate(current_pos, spindexTarget);
+
+        spindexMotor.setPower(pow);
+    }
+
+    public void update(){
+        donutPID();
+    }
+
     public void spinSpindex (int direction){
         if (direction == 1){
             setSpindexPosition( currentPosition.next());
