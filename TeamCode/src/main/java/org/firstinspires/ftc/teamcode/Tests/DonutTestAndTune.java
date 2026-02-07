@@ -30,7 +30,7 @@ public class DonutTestAndTune extends OpMode {
     public void loop() {
         donut.setSpindexPosition(position);
         donut.setPushUpServoPosition(pushup);
-        telemetryM.debug("color sensor left " + donut.getHueFromSensor(donut.colorSensorLeft));
+        telemetryM.debug("Current speed " + donut.getHueFromSensor(donut.colorSensorLeft));
         telemetryM.debug("color sensor right "+ donut.getHueFromSensor(donut.colorSensorLeft));
         telemetryM.debug("front Distance Sensor "+ donut.getFrontDistance());
         telemetryM.debug("back Distance Sensor "+ donut.getBackDistance());
@@ -41,9 +41,8 @@ public class DonutTestAndTune extends OpMode {
 
         if(setRollers){
             rollers.enableIntake();
-        } else if (!setRollers) {
+        } else {
             rollers.disableIntake();
-
         }
 
         telemetryM.update(telemetry);

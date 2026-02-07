@@ -10,10 +10,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 @Configurable
 public class Rollers {
-    private CRServo intakeMotor;
+    private DcMotorEx intakeMotor;
 
     public Rollers(@NonNull HardwareMap hwMap){
-        intakeMotor = hwMap.get(CRServo.class, "intakeServo");
+        intakeMotor = hwMap.get(DcMotorEx.class, "intakeMotor");
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void enableIntake(){

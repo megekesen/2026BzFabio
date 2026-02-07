@@ -11,23 +11,24 @@ import java.util.Arrays;
 @Configurable
 public class Supersystems {
     private Rollers rollers;
-    private Donut donut;
+    public Donut donut;
     public DriveTrain train;
-    private Turret turret;
-    public Limelight ll;
+    public  Turret turret;
+    public  Limelight ll;
     public PinPoint pin;
-    private Donut.BallColor[] donutSlots = {Donut.BallColor.EMPTY, Donut.BallColor.EMPTY, Donut.BallColor.EMPTY};
-    private int intakeState = 0;
+    public Donut.BallColor[] donutSlots = {Donut.BallColor.EMPTY, Donut.BallColor.EMPTY, Donut.BallColor.EMPTY};
+    public static int intakeState = 0;
+    public boolean switchToNext = false;
     public static double timeToWaitForSwitchingSpindex = 1.0;
     public static double  timeToWaitForShooting = 1.0;
     public static double  timeToWaitForPushUp = 1.0;
 
-    private int scorestate = 0;
+    public int scorestate = 0;
 
-    public static double turretPositionForIntake = 0.0;
+    public static double turretPositionForIntake = 0.5;
     public static double hoodPositionForIntake = 0.0;
-    public static int shooterSpeedForIntake = -0;
-    public static enum TURRET_UPDATE_MODE {LL, ENCODER};
+    public static int shooterSpeedForIntake = -100;
+    public static enum TURRET_UPDATE_MODE {LL, ENCODER, STOP};
     private TURRET_UPDATE_MODE updateMode = TURRET_UPDATE_MODE.ENCODER;
 
 
@@ -94,7 +95,7 @@ public class Supersystems {
     }
 
     public void intakeWithDistance(ElapsedTime timer){
-        boolean switchToNext = donut.getFrontDistance() < 10.0;
+        switchToNext = donut.getFrontDistance() < 4.0;
         rollers.enableIntake();
         switch (intakeState){
             case 0:
@@ -250,6 +251,7 @@ public class Supersystems {
     public void resetIntake(){
         intakeState = 0;
         setSlotsToEmpty();
+        switchToNext = false;
     }
     /**
      * use before starting the shooting to reset the state to 0
@@ -277,6 +279,11 @@ public class Supersystems {
             }else if (Messanger.sequence.equals("PPG")) {
                 Donut.BallColor[] targetSequence = {Donut.BallColor.PURPLE, Donut.BallColor.PURPLE, Donut.BallColor.GREEN};
                 shootWithSequence(timer, findSequence(targetSequence));
+            } else if (Messanger.sequence.equals("")) {
+                spindexPositions[0] = Donut.SpindexPositions.SHOTER_1;
+                spindexPositions[1] = Donut.SpindexPositions.SHOTER_2;
+                spindexPositions[2] = Donut.SpindexPositions.SHOTER_3;
+                shootWithSequence(timer, spindexPositions);
             }
         }else {
             spindexPositions[0] = Donut.SpindexPositions.SHOTER_1;
@@ -427,12 +434,17 @@ public class Supersystems {
                 break;
         }
     }
+//    private boolean shoot(){
+//        if(turret.isReadyToShoot()){
+//            donut.setPushUpServoPosition(Donut.PushUpPositions.UP);
+//            return true;
+//        }
+//        return false;
+//    }
+
     private boolean shoot(){
-        if(turret.isReadyToShoot()){
-            donut.setPushUpServoPosition(Donut.PushUpPositions.UP);
-            return true;
-        }
-        return false;
+        donut.setPushUpServoPosition(Donut.PushUpPositions.UP);
+        return true;
     }
 
     public void setTurretON(){
@@ -441,8 +453,8 @@ public class Supersystems {
 
     private void setSlotsToEmpty(){
         donutSlots[0] = Donut.BallColor.EMPTY;
+        donutSlots[1] = Donut.BallColor.EMPTY;
         donutSlots[2] = Donut.BallColor.EMPTY;
-        donutSlots[3] = Donut.BallColor.EMPTY;
     }
 
     public void setTurretUpdateMode(TURRET_UPDATE_MODE t){
@@ -453,7 +465,15 @@ public class Supersystems {
             turret.update();
         } else if (updateMode == TURRET_UPDATE_MODE.LL) {
             turret.updateLL();
+        }else if (updateMode == TURRET_UPDATE_MODE.STOP) {
+            turret.setTurretTarget(0.5);
+            turret.setShooterSpeed(0);
         }
+    }
+    public void update (){
+        updateTurretPIDs();
+        donut.update();
+
     }
     public void updateLLForSHooting(){
         ll.updateAimLL();

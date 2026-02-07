@@ -30,8 +30,8 @@ public class DriveTrain {
     public static double rot_kD = 0.0;
 
     //change these for presets
-    public static double goalHeading = 0.0;
-    public static double humanHEading= 0.0;
+    public static double goalHeading = 5.5;
+    public static double humanHEading= 1.48;
 
 
     public DriveTrain(@NonNull HardwareMap hwMap){
@@ -95,7 +95,7 @@ public class DriveTrain {
             fine = 0.5;
         }
         // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-        double y = -lStickY * fine; // Remember, this is reversed!
+        double y = lStickY * fine; // Remember, this is reversed!
         double x = lStickX * fine; // this is strafing
         double rx = rStickX * fine;
 

@@ -4,6 +4,8 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -18,6 +20,7 @@ public class DriveTrainTestAndTune extends OpMode {
     GamepadEx pad1;
     ToggleButtonReader fineToggle;
     public static double heading;
+    private TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     @Override
     public void init() {
         drive = new DriveTrain(hardwareMap);
@@ -33,9 +36,9 @@ public class DriveTrainTestAndTune extends OpMode {
         drive.DriveCentric(pad1.getLeftX(), pad1.getLeftY(), pad1.getRightX(), pin.getYaw(), fineToggle.getState());
         drive.trainSetHEading(heading);
 
-        telemetry.addData("Current Heading" , pin.getYaw());
-        telemetry.addData("Target Heading ", heading);
-        telemetry.update();
+        telemetryM.debug("Current Heading" + pin.getYaw());
+        telemetryM.debug("Target Heading "+ heading);
+        telemetryM.update(telemetry);
 
     }
 }
