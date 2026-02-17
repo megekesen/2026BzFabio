@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 @Configurable
 public class Rollers {
-    private DcMotorEx intakeMotor;
+    public DcMotorEx intakeMotor;
 
     public Rollers(@NonNull HardwareMap hwMap){
         intakeMotor = hwMap.get(DcMotorEx.class, "intakeMotor");

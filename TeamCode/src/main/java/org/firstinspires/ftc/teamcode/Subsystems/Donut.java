@@ -33,17 +33,17 @@ public class Donut {
     }
 
     private SpindexPositions currentPosition;
-    public static int spindexIntake1 = 0;
-    public static int spindexIntake2 = 100;
-    public static int spindexIntake3 = 195;
+    public static int spindexIntake1 = 140;
+    public static int spindexIntake2 = 240;
+    public static int spindexIntake3 = 335;
 
-    public static int spindexShoter1 = 140;
+    public static int spindexShoter1 = 0;
     //could be used to speed up spindex movement so that the spindex does not have to go all the way around when going from 1 to 3
     // if you do not want to use it look at the commit from the 31 at 4 am(?) and use that instead
-    public static int spindexShoter1From3 = 435;
-    public static int spindexShoter2 = 240;
-    public static int spindexShoter3 = 335;
-    public static int spindexShoter3From1 = 48;
+    public static int spindexShoter1From3 = 290;
+    public static int spindexShoter2 = 95;
+    public static int spindexShoter3 = 190;
+    public static int spindexShoter3From1 =-95 ;
 
     private PIDController spindexController;
     public static double spindexP = 0.04;
@@ -54,8 +54,8 @@ public class Donut {
 
     private Servo pushUpServo;
     public enum PushUpPositions{UP, DOWN}
-    public static double pushUpDown = 0.605;
-    public static double pushUpUp = 0.66;
+    public static double pushUpDown = 0;//0.605
+    public static double pushUpUp = 0.55;//0.00
 
     public DistanceSensor backDistanceSensor;
     public  NormalizedColorSensor colorSensorLeft;
@@ -63,10 +63,10 @@ public class Donut {
     public enum BallColor {GREEN, PURPLE, CONFLICTING, EMPTY}
 
     // all of these are hue values
-    public double lowerPurpleLeve = 210;
-    public double upperPurpleLevel = 260;
-    public double lowerGreenLevel = 140;
-    public double upperGreenLevel = 170;
+    public double lowerPurpleLeve = 200;
+    public double upperPurpleLevel = 270;
+    public double lowerGreenLevel = 130;
+    public double upperGreenLevel = 180;
 
 
     public Donut (@NonNull HardwareMap hwMap){
@@ -79,7 +79,7 @@ public class Donut {
 
         colorSensorLeft = hwMap.get(NormalizedColorSensor.class, "colorRight");
         colorSensorRight = hwMap.get(NormalizedColorSensor.class, "colorLeft");
-        backDistanceSensor = hwMap.get(DistanceSensor.class, "backDistanceSensor");
+        backDistanceSensor = hwMap.get(DistanceSensor.class, "color3");
 
         spindexController = new PIDController(spindexP, spindexI, spindexD);
     }

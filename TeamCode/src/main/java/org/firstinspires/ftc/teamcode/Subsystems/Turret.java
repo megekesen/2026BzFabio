@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 @Configurable
 public class Turret {
@@ -16,7 +17,6 @@ public class Turret {
     private DcMotorEx shooterMotorLeft;
 
 
-    private DcMotorEx turretMotor;
     private Servo turretServo;
 
     private Servo hoodServo;
@@ -39,14 +39,15 @@ public class Turret {
     public static double turretLLI;
     public static double turretLLD;
 
-    private double turretLLTarget;
+    private double LLCurentPosition;
+    private double distance;
 
     private PIDController turretController;
     public static double turretP;
     public static double turretI;
     public static double turretD;
 
-    private double turretTarget;
+    public double powServo;
 
     public Turret(HardwareMap hwMap){
         shooterMotorRight = hwMap.get(DcMotorEx.class, "shooterMotorRight");
@@ -81,48 +82,79 @@ public class Turret {
     public void setShooterSpeed(int target){
         speedRPMTarget = target;
     }
-
-    private void turretLLPID(){
-//        double pow = 0;
-//        double current_pos = turretMotor.getCurrentPosition(); //in ticks per second
-//        pow = turretLLController.calculate(current_pos, turretLLTarget);
-//
-//        turretMotor.setPower(pow);
-    }
-
-    public void setTurretLLTarget(double target){
-        turretLLTarget = target;
-    }
-
-    private void turretPID(){
-//        double pow = 0;
-//        double current_pos = turretMotor.getCurrentPosition(); //in ticks per second
-//        pow = turretController.calculate(current_pos, turretTarget);
-//
-//        turretMotor.setPower(pow);
-        turretServo.setPosition(turretTarget);
+    /**
+     * Computes corrected turret aiming error when the Limelight
+     * is offset sideways from the turret center.
+     *
+     * @param txDeg          Limelight horizontal angle (degrees)
+     * @param distance       Distance from camera to target (same units as offset)
+     * @param cameraOffsetX Side offset of camera from turret center (+right, -left)
+     *
+     * @return Corrected turret error angle in degrees (target-centered = 0)
+     */
+    public static double getCorrectedTurretError(
+            double txDeg,
+            double distance,
+            double cameraOffsetX
+    ) {
+        // Protect against divide-by-zero or invalid distance
+        if (distance <= 0.001) {
+            return txDeg;
         }
 
-    public void setTurretTarget(double target){
-        turretTarget = target;
+        // Convert Limelight tx to radians
+        double txRad = Math.toRadians(txDeg);
+
+        // Target position in camera frame
+        double xCam = distance * Math.tan(txRad);
+        double yCam = distance;
+
+        // Shift into turret frame
+        double xTurret = xCam + cameraOffsetX;
+        double yTurret = yCam;
+
+        // Compute corrected angle
+        double correctedRad = Math.atan2(xTurret, yTurret);
+
+        return Math.toDegrees(correctedRad);
     }
+
+    private void turretLLPID(){
+        turretLLController.setPID(turretLLP, turretLLI, turretLLD);
+        powServo = 0;
+        powServo =turretLLController.calculate(getCorrectedTurretError(-LLCurentPosition, distance, 0.14 ), 0);
+
+        powServo = turretServo.getPosition() + powServo;
+        turretServo.setPosition(Range.clip(powServo, 0.0, 1.0));
+    }
+    public void setTurretServoPosition(double pos){
+        turretServo.setPosition(pos);
+    }
+
 
     public void setHood (double position){
         hoodServo.setPosition(position);
     }
 
+    public void setLLCurrentPosition(double tx, double distance){
+        LLCurentPosition = tx;
+        this.distance = distance;
+    }
     public void setTurretWithLimelight(double distance, double tx){
         //here do a bunch of math to figure our the roller speed and hood extension
         //if this does not work, picka spot of the field, find the optimal hood position
         // and roller speed, keep the turret from spinning
         // and just use that always
 
-        //turretLLTarget = tx;
-        turretTarget = 0.5;
+        setLLCurrentPosition(tx, distance);
+        if (distance > 100){
+            setShooterSpeed(1600);
+            setHood(0);
+        }else{
+            setShooterSpeed( 1400);
+            setHood(0);
+        }
         speedRPMTarget = 1600;
-    }
-    public boolean isReadyToShoot(){
-        return speedShooterController.atSetPoint();
     }
 
     public void updateLL(){
@@ -131,7 +163,6 @@ public class Turret {
     }
     public void update(){
         shooterPID();
-        turretPID();
     }
 
 

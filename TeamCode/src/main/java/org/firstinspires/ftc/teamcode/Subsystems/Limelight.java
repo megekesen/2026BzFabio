@@ -16,14 +16,21 @@ import java.util.List;
 public class Limelight {
     private Limelight3A limelight;
 
-    public enum Pipelines{PATTERN_RECOGNITION, BLUE_TARGET, RED_TARGET}
+    public enum Pipelines{PATTERN_RECOGNITION (0), BLUE_TARGET(1), RED_TARGET(2);
+        public int number;
+        Pipelines(int number){
+            this.number = number;
+        }
 
-    double scale = 0.0;
+    }
+
+    double scale = 7799.701;
     // FOLLOW THIS TUTORIAL TO FIND THE SCALE
     // https://youtu.be/Ap1lBywv00M?si=vfVvohYDsQcFGoUW
 
     private double distance = 0.0;
     private double tx = 0.0;
+    private double ta = 0.0;
     public Limelight(@NonNull HardwareMap hardwareMap){
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
     }
@@ -33,7 +40,7 @@ public class Limelight {
     }
 
     public void switchPipeline (Pipelines pipeline){
-        limelight.pipelineSwitch(pipeline.ordinal());
+        limelight.pipelineSwitch(pipeline.number);
     }
 
     public void stop(){
@@ -49,6 +56,7 @@ public class Limelight {
         if (llResult!= null && llResult.isValid()) {
             distance = getDistanceFromTag(llResult.getTa());
             tx = llResult.getTx();
+            ta = llResult.getTa();
         }
     }
 
@@ -72,16 +80,15 @@ public class Limelight {
     }
 
     private double getDistanceFromTag(double ta){
-        return (scale / ta);
+        double distance = 183.6147*(Math.pow(ta, -0.5453));
+        return 183.6147*(Math.pow(ta, -0.5453));
     }
 
 
-    public double getDistance(){
-        return distance;
-    }
+    public double getDistance(){return distance;}
     public double getTx(){
         return tx;
     }
 
-
+    public double getTa() {return ta;}
 }

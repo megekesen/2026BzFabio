@@ -10,8 +10,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Donut;
 import org.firstinspires.ftc.teamcode.Subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.Subsystems.Messanger;
+import org.firstinspires.ftc.teamcode.Subsystems.Messenger;
 import org.firstinspires.ftc.teamcode.Subsystems.Supersystems;
 
 @Configurable
@@ -36,19 +37,11 @@ public class Teleop extends OpMode {
         pad1 = new GamepadEx(gamepad1);
         fineToggle = new ToggleButtonReader(pad1, GamepadKeys.Button.LEFT_STICK_BUTTON);
         timer = new ElapsedTime();
-        if (Messanger.allianceColor.equals("Blue")) {
+        if (Messenger.allianceColor.equals("Blue")) {
             supersystems.ll.switchPipeline(Limelight.Pipelines.BLUE_TARGET);
-        } else if (Messanger.allianceColor.equals("red")) {
+        } else if (Messenger.allianceColor.equals("red")) {
             supersystems.ll.switchPipeline(Limelight.Pipelines.RED_TARGET);
         }
-
-        //pad1.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> {currentState = States.PREINTAKE;});
-
-        //pad1.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() -> {currentState = States.PRESHOOTING;});
-
-        //pad1.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(() -> {currentState = States.SIDE;});
-
-        //pad1.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(() -> {currentState = States.NOTHING;});
 
         if(gamepad1.dpadDownWasReleased()){
             currentState = States.PREINTAKE;
@@ -65,6 +58,7 @@ public class Teleop extends OpMode {
         if(gamepad1.dpadLeftWasReleased()){
             currentState = States.NOTHING;
         }
+        supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
     }
 
     @Override
@@ -96,8 +90,6 @@ public class Teleop extends OpMode {
         switch (currentState){
             case PREINTAKE:
                 supersystems.setRollers(true);
-                supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.ENCODER);
-                supersystems.setRollers(true);
                 supersystems.resetIntake();
                 currentState = States.INTAKE;
                 break;
@@ -106,13 +98,13 @@ public class Teleop extends OpMode {
                 supersystems.intakeWithDistance(timer);
                 break;
             case PRESHOOTING:
-                supersystems.setRollers(false);
+                supersystems.rollers.intakeMotor.setPower(0.5);
                 supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.LL);
                 supersystems.ll.start();
                 supersystems.train.trainSetHEading(scoreHeading);
                 supersystems.resetScore();
                 supersystems.updateLLForSHooting();
-                supersystems.setTurretON();
+                supersystems.aimTurretWithLL();
                if(gamepad1.aWasReleased()){
                    currentState = States.SHOOTING;
                             if(supersystems.ll.llCanAim())
@@ -125,21 +117,21 @@ public class Teleop extends OpMode {
                 supersystems.updateLLForSHooting();
                 break;
             case SIDE:
-                supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.ENCODER);
                 supersystems.train.trainSetHEading(sideHeading);
-                supersystems.intakeWithDistanceFromShooter(timer);
+                supersystems.intakeFromShooter(gamepad1.aWasReleased(), timer);
                 break;
 
             case NOTHING:
                 break;
         }
 
-        if (currentState != States.PREINTAKE && currentState != States.INTAKE){
+        if (currentState == States.NOTHING){
             supersystems.setRollers(false);
         }
-        if (currentState != States.PRESHOOTING && currentState != States.SHOOTING){
-            //supersystems.ll.stop();
+        if (currentState != States.PRESHOOTING && currentState != States.SHOOTING && currentState!= States.SIDE){
+            supersystems.ll.stop();
             supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.STOP);
+            supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
         }
 
 
@@ -148,7 +140,9 @@ public class Teleop extends OpMode {
         telemetryM.debug("intake state " + supersystems.intakeState);
         telemetryM.debug("shooting state " + supersystems.scorestate);
         telemetryM.debug(("distance in the front " + supersystems.donut.getFrontDistance()));
-        telemetryM.debug("Donuts slots " + supersystems.donutSlots.toString());
+        telemetryM.debug(("distance in the back " + supersystems.donut.getBackDistance()));
+
+        telemetryM.debug("Donuts slots " + supersystems.peekAtSpindex());
         telemetryM.debug("Turn to next " + supersystems.switchToNext);
 
         telemetryM.update(telemetry);

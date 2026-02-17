@@ -42,13 +42,15 @@ public class TurretTestAndTune extends OpMode {
         pin = new PinPoint(hardwareMap);
         donut = new Donut(hardwareMap);
         rollers = new Rollers(hardwareMap);
+        lime.switchPipeline(Limelight.Pipelines.BLUE_TARGET);
+        lime.start();
     }
 
     @Override
     public void loop() {
         turret.setShooterSpeed((int) shooterSpeedTarget);
         turret.setHood(hoodPosition);
-        turret.setTurretTarget(turretTarget);
+        turret.setLLCurrentPosition(lime.getTx(), lime.getDistance());
 
         donut.setSpindexPosition(position);
         donut.setPushUpServoPosition(pushup);
@@ -66,23 +68,21 @@ public class TurretTestAndTune extends OpMode {
 
         if (useLimeLIght){
             lime.updateAimLL();
-            turret.setTurretWithLimelight(lime.getDistance(), lime.getTx());
+            turret.setLLCurrentPosition(lime.getTx(), lime.getDistance());
         }
 
-        telemetryM.debug("Current speed " + donut.getHueFromSensor(donut.colorSensorLeft));
-        telemetryM.debug("color sensor right "+ donut.getHueFromSensor(donut.colorSensorLeft));
-        telemetryM.debug("front Distance Sensor "+ donut.getFrontDistance());
-        telemetryM.debug("back Distance Sensor "+ donut.getBackDistance());
-        telemetryM.debug("SPindex target "+ donut.spindexTarget);
-        telemetryM.debug("Spindex current "+ donut.spindexMotor.getCurrentPosition());
-        telemetryM.debug("COLOR SEEN" + donut.getColor());
 
         telemetryM.debug(" Current sped " + turret.shooterMotorRight.getVelocity());
         telemetryM.debug("Target speed "+ shooterSpeedTarget);
         telemetryM.debug("Current error "+ (shooterSpeedTarget - turret.shooterMotorRight.getVelocity()));
+        telemetryM.debug("TX "+ lime.getTx());
+        telemetryM.debug("Servo Power" + turret.powServo);
 
-
-        turret.update();
+        if (useLimeLIght){
+            turret.updateLL();
+        }else {
+            turret.update();
+        }
         turret.updateLL();
         telemetryM.update(telemetry);
     }

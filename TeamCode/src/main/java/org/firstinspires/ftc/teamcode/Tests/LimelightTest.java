@@ -46,8 +46,10 @@ public class LimelightTest extends OpMode {
         }
 
         telemetryM.debug("Distance " + distance);
+        telemetryM.debug("Area " + ll.getTa());
         telemetryM.debug("ID NUmber "+ iDNumber);
         telemetryM.debug("Pattern "+ pattern);
+        telemetryM.debug("Tx  "+ ll.getTx());
         telemetryM.update(telemetry);
     }
 

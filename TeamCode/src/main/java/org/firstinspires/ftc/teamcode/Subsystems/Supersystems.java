@@ -2,34 +2,35 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 
 import java.util.Arrays;
 
 @Configurable
 public class Supersystems {
-    private Rollers rollers;
+    public Rollers rollers;
     public Donut donut;
     public DriveTrain train;
     public  Turret turret;
     public  Limelight ll;
     public PinPoint pin;
+
+    public Servo rgb;
     public Donut.BallColor[] donutSlots = {Donut.BallColor.EMPTY, Donut.BallColor.EMPTY, Donut.BallColor.EMPTY};
     public static int intakeState = 0;
     public boolean switchToNext = false;
     public static double timeToWaitForSwitchingSpindex = 1.0;
-    public static double  timeToWaitForShooting = 1.0;
-    public static double  timeToWaitForPushUp = 1.0;
+    public static double  timeToWaitForShooting = 0.4;
+    public static double  timeToWaitForPushUp = 0.5;
 
     public int scorestate = 0;
 
     public static double turretPositionForIntake = 0.5;
     public static double hoodPositionForIntake = 0.0;
     public static int shooterSpeedForIntake = -100;
-    public static enum TURRET_UPDATE_MODE {LL, ENCODER, STOP};
-    private TURRET_UPDATE_MODE updateMode = TURRET_UPDATE_MODE.ENCODER;
+    public static enum TURRET_UPDATE_MODE {LL, STOP, SIDE};
+    private TURRET_UPDATE_MODE updateMode = TURRET_UPDATE_MODE.STOP;
 
 
     public Supersystems(HardwareMap hwMap, boolean isThisAutonomous){
@@ -37,7 +38,7 @@ public class Supersystems {
         donut = new Donut(hwMap);
         turret = new Turret(hwMap);
         ll = new Limelight(hwMap);
-
+        rgb = hwMap.get(Servo.class, "rgb");
         if (!isThisAutonomous){
             train = new DriveTrain(hwMap);
             pin = new PinPoint(hwMap);
@@ -100,6 +101,7 @@ public class Supersystems {
         switch (intakeState){
             case 0:
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_1);
+                setRGBForCompletion(0.28);
                 if(switchToNext) {
                     donutSlots[0] = donut.getColor();
                     donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_2);
@@ -108,12 +110,14 @@ public class Supersystems {
                 }
                 break;
             case 1:
+                setRGBForCompletion(0.38);
                 if(timer.seconds() > timeToWaitForSwitchingSpindex){
                     intakeState = 2;
                 }
                 break;
             case 2:
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_2);
+                setRGBForCompletion(0.38);
                 if(switchToNext) {
                     donutSlots[1] = donut.getColor();
                     donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_3);
@@ -122,12 +126,14 @@ public class Supersystems {
                 }
                 break;
             case 3:
+                setRGBForCompletion(0.611);
                 if(timer.seconds() > timeToWaitForSwitchingSpindex){
                     intakeState = 4;
                 }
                 break;
             case 4:
                 donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_3);
+                setRGBForCompletion(0.611);
                 if(switchToNext) {
                     donutSlots[2] = donut.getColor();
                     donut.setSpindexPosition(Donut.SpindexPositions.INTAKE_1);
@@ -136,16 +142,26 @@ public class Supersystems {
                 }
                 break;
             case 5:
+                setRGBForCompletion(0.28);
                 if(timer.seconds() > timeToWaitForSwitchingSpindex){
                     intakeState = 0;
                 }
         }
     }
+    private void setRGBForCompletion(double elseColor) {
+        boolean noEmptyOrConflicting =
+                Arrays.stream(donutSlots)
+                        .noneMatch(i -> i == Donut.BallColor.EMPTY
+                                || i == Donut.BallColor.CONFLICTING);
 
+        if (noEmptyOrConflicting) {
+            rgb.setPosition(0.5);
+        } else {
+            rgb.setPosition(elseColor);
+        }
+    }
     public void intakeFromShooter(boolean switchToNext, ElapsedTime timer){
-        turret.setTurretLLTarget(turretPositionForIntake);
-        turret.setHood(hoodPositionForIntake);
-        turret.setShooterSpeed(shooterSpeedForIntake);
+        setTurretUpdateMode(TURRET_UPDATE_MODE.SIDE);
         switch (intakeState){
             case 0:
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_1);
@@ -195,15 +211,13 @@ public class Supersystems {
     }
 
     public void intakeWithDistanceFromShooter(ElapsedTime timer){
-        turret.setTurretTarget(turretPositionForIntake);
-        turret.setHood(hoodPositionForIntake);
-        turret.setShooterSpeed(shooterSpeedForIntake);
-        boolean switchToNext = donut.getBackDistance() < 10.0;
+        setTurretUpdateMode(TURRET_UPDATE_MODE.SIDE);
+        boolean switchToNext = donut.getBackDistance() < 4.0;
         switch (intakeState){
             case 0:
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_1);
                 if(switchToNext) {
-                    donutSlots[0] = donut.getColor();
+                    //donutSlots[0] = donut.getColor();
                     donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_2);
                     timer.reset();
                     intakeState = 1;
@@ -217,7 +231,7 @@ public class Supersystems {
             case 2:
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_2);
                 if(switchToNext) {
-                    donutSlots[1] = donut.getColor();
+                    //donutSlots[1] = donut.getColor();
                     donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_3);
                     timer.reset();
                     intakeState = 3;
@@ -231,7 +245,7 @@ public class Supersystems {
             case 4:
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_3);
                 if(switchToNext) {
-                    donutSlots[2] = donut.getColor();
+                    //donutSlots[2] = donut.getColor();
                     donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_1);
 
                     timer.reset();
@@ -270,16 +284,16 @@ public class Supersystems {
         Donut.SpindexPositions[] spindexPositions = new Donut.SpindexPositions[3];
 
         if(hasAllColorsNeeded()){
-            if (Messanger.sequence.equals("GPP")){
+            if (Messenger.sequence.equals("GPP")){
                 Donut.BallColor[] targetSequence = {Donut.BallColor.GREEN, Donut.BallColor.PURPLE, Donut.BallColor.PURPLE};
                 shootWithSequence(timer, findSequence(targetSequence));
-            } else if (Messanger.sequence.equals("PGP")) {
+            } else if (Messenger.sequence.equals("PGP")) {
                 Donut.BallColor[] targetSequence = {Donut.BallColor.PURPLE, Donut.BallColor.GREEN, Donut.BallColor.PURPLE};
                 shootWithSequence(timer, findSequence(targetSequence));
-            }else if (Messanger.sequence.equals("PPG")) {
+            }else if (Messenger.sequence.equals("PPG")) {
                 Donut.BallColor[] targetSequence = {Donut.BallColor.PURPLE, Donut.BallColor.PURPLE, Donut.BallColor.GREEN};
                 shootWithSequence(timer, findSequence(targetSequence));
-            } else if (Messanger.sequence.equals("")) {
+            } else if (Messenger.sequence.equals("")) {
                 spindexPositions[0] = Donut.SpindexPositions.SHOTER_1;
                 spindexPositions[1] = Donut.SpindexPositions.SHOTER_2;
                 spindexPositions[2] = Donut.SpindexPositions.SHOTER_3;
@@ -305,7 +319,7 @@ public class Supersystems {
                 else if (slot == Donut.BallColor.GREEN) green++;
             }
 
-            valid = purple >= 2 && green >= 1;
+            valid = purple == 2 && green == 1;
         }
         return valid;
 
@@ -317,14 +331,14 @@ public class Supersystems {
      * @return a 3 element array detailing how the donut slots will be shot based on the taraget sequence
      */
     private Donut.SpindexPositions[] findSequence(Donut.BallColor[] targetSequence){
-        Donut.BallColor[] donutslots = donutSlots;
+        Donut.BallColor[] donutslotsCopy= donutSlots.clone();
         Donut.SpindexPositions[] shootSequence = new Donut.SpindexPositions[3];
 
         for (int i = 0; i < targetSequence.length; i++) {
-            for (int j = 0; j < donutslots.length; j++) {
-                if (targetSequence[i].equals(donutslots[j])) {
+            for (int j = 0; j < donutslotsCopy.length; j++) {
+                if (targetSequence[i].equals(donutslotsCopy[j])) {
                     shootSequence[i] = Donut.SpindexPositions.values()[j + 3];
-                    donutslots[j] = null;
+                    donutslotsCopy[j] = null;
                     break;
                 }
             };
@@ -340,24 +354,27 @@ public class Supersystems {
 
         switch (scorestate){
             case 0:
+                rgb.setPosition(0.280);
                 donut.setSpindexPosition(pos1);
                 scorestate = 1;
                 timer.reset();
                 break;
             case 1:
                 if(timer.seconds() > timeToWaitForSwitchingSpindex){
-                    intakeState = 2;
+                    scorestate = 2;
+                    timer.reset();
                 }
                 break;
             case 2:
-                if (shoot()){
+                donut.setPushUpServoPosition(Donut.PushUpPositions.UP);
+                if (timer.seconds() > 0.6){
                     scorestate = 3;
                     timer.reset();
                 }
                 break;
             case 3:
                 if(timer.seconds() > timeToWaitForShooting){
-                    intakeState = 4;
+                    scorestate = 4;
                 }
                 break;
             case 4 :
@@ -377,18 +394,19 @@ public class Supersystems {
                 break;
             case 7:
                 if(timer.seconds() > timeToWaitForSwitchingSpindex){
-                    intakeState = 8;
+                    scorestate = 8;
                 }
                 break;
             case 8:
-                if (shoot()){
+                donut.setPushUpServoPosition(Donut.PushUpPositions.UP);
+                if (timer.seconds() > 0.6){
                     scorestate = 9;
                     timer.reset();
                 }
                 break;
             case 9:
                 if(timer.seconds() > timeToWaitForShooting){
-                    intakeState = 10;
+                    scorestate = 10;
                 }
                 break;
             case 10 :
@@ -408,18 +426,19 @@ public class Supersystems {
                 break;
             case 13:
                 if(timer.seconds() > timeToWaitForSwitchingSpindex){
-                    intakeState = 14;
+                    scorestate = 14;
                 }
                 break;
             case 14:
-                if (shoot()){
+                donut.setPushUpServoPosition(Donut.PushUpPositions.UP);
+                if (timer.seconds() > 0.6){
                     scorestate = 15;
                     timer.reset();
                 }
                 break;
             case 15:
                 if(timer.seconds() > timeToWaitForShooting){
-                    intakeState = 16;
+                    scorestate = 16;
                 }
                 break;
             case 16 :
@@ -429,25 +448,14 @@ public class Supersystems {
                 break;
             case 17 :
                 if (timer.seconds() > timeToWaitForPushUp){
-                    scorestate = 0;
+                    //scorestate =0;
+                    rgb.setPosition(0.5);
                 }
                 break;
         }
     }
-//    private boolean shoot(){
-//        if(turret.isReadyToShoot()){
-//            donut.setPushUpServoPosition(Donut.PushUpPositions.UP);
-//            return true;
-//        }
-//        return false;
-//    }
 
-    private boolean shoot(){
-        donut.setPushUpServoPosition(Donut.PushUpPositions.UP);
-        return true;
-    }
-
-    public void setTurretON(){
+    public void aimTurretWithLL(){
         turret.setTurretWithLimelight(ll.getDistance(), ll.getTx());
     }
 
@@ -461,15 +469,31 @@ public class Supersystems {
         updateMode = t;
     }
     public void updateTurretPIDs(){
-        if(updateMode == TURRET_UPDATE_MODE.ENCODER){
-            turret.update();
-        } else if (updateMode == TURRET_UPDATE_MODE.LL) {
+        if (updateMode == TURRET_UPDATE_MODE.LL) {
             turret.updateLL();
         }else if (updateMode == TURRET_UPDATE_MODE.STOP) {
-            turret.setTurretTarget(0.5);
+            turret.setTurretServoPosition(0.5);
             turret.setShooterSpeed(0);
+            turret.update();
+        } else if (updateMode ==  TURRET_UPDATE_MODE.SIDE) {
+            turret.setTurretServoPosition(0.5);
+            turret.setShooterSpeed(-500);
+            turret.update();
         }
     }
+
+    public String peekAtSpindex(){
+        StringBuilder contents = new StringBuilder("Spindex contents : ");
+        for(Donut.BallColor e : donutSlots){
+            if (e == null){
+                contents.append("Null; ");
+            }else {
+                contents.append(e.toString()).append("; ");
+            }
+        }
+        return contents.toString();
+    }
+
     public void update (){
         updateTurretPIDs();
         donut.update();
@@ -480,5 +504,29 @@ public class Supersystems {
     }
     public void updateLLForPattern(){
         ll.updatePatternLL();
+    }
+    public void setLLforPatternRecognition(){
+        ll.switchPipeline(Limelight.Pipelines.PATTERN_RECOGNITION);
+        ll.start();
+    }
+    public void detectAndSavePattern(){
+        int pattern = ll.updatePatternLL();
+        if (pattern == 21){
+            Messenger.sequence = "GPP";
+            rgb.setPosition(0.5);
+        } else if (pattern == 22) {
+            Messenger.sequence = "PGP";
+            rgb.setPosition(0.5);
+        } else if (pattern == 24) {
+            Messenger.sequence = "PPG";
+            rgb.setPosition(0.5);
+        } else if (pattern == -1) {
+            if (Messenger.sequence != ""){
+                rgb.setPosition(0.5);
+            }else{
+                rgb.setPosition(0.28);
+            }
+
+        }
     }
 }
