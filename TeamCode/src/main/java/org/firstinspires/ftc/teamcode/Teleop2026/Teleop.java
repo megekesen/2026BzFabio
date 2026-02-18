@@ -26,7 +26,7 @@ public class Teleop extends OpMode {
     double scoreHeading = 0.0;
     double sideHeading = 0.0;
 
-    public enum States {PREINTAKE, INTAKE,PRESHOOTING, SHOOTING, SIDE, NOTHING}
+    public enum States {PREINTAKE, INTAKE,PRESHOOTING, SHOOTING, SIDE, NOTHING, UNJAM}
     public States currentState = States.NOTHING;
     private TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
@@ -39,25 +39,13 @@ public class Teleop extends OpMode {
         timer = new ElapsedTime();
         if (Messenger.allianceColor.equals("Blue")) {
             supersystems.ll.switchPipeline(Limelight.Pipelines.BLUE_TARGET);
-        } else if (Messenger.allianceColor.equals("red")) {
+            supersystems.train.goalHeading = 0.0;
+            supersystems.train.humanHEading = 0.0 ;
+        } else if (Messenger.allianceColor.equals("Red")) {
             supersystems.ll.switchPipeline(Limelight.Pipelines.RED_TARGET);
         }
+        supersystems.ll.start();
 
-        if(gamepad1.dpadDownWasReleased()){
-            currentState = States.PREINTAKE;
-        }
-
-        if(gamepad1.dpadUpWasReleased()){
-            currentState = States.PRESHOOTING;
-        }
-
-        if(gamepad1.dpadRightWasPressed()){
-            currentState = States.SIDE;
-        }
-
-        if(gamepad1.dpadLeftWasReleased()){
-            currentState = States.NOTHING;
-        }
         supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
     }
 
@@ -81,6 +69,10 @@ public class Teleop extends OpMode {
         if(gamepad1.dpadLeftWasReleased()){
             currentState = States.NOTHING;
         }
+        if(gamepad1.startWasReleased()){
+            currentState = States.UNJAM;
+            timer.reset();
+        }
 
         supersystems.train.DriveCentric(pad1.getLeftX(), pad1.getLeftY(), pad1.getRightX(), supersystems.pin.getYaw(), fineToggle.getState());
 
@@ -89,20 +81,22 @@ public class Teleop extends OpMode {
 
         switch (currentState){
             case PREINTAKE:
+                supersystems.turret.setShooterSpeed(0);
+                supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
                 supersystems.setRollers(true);
                 supersystems.resetIntake();
                 currentState = States.INTAKE;
                 break;
             case INTAKE:
+                supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
                 supersystems.setRollers(true);
                 supersystems.intakeWithDistance(timer);
+
                 break;
             case PRESHOOTING:
                 supersystems.rollers.intakeMotor.setPower(0.5);
-                supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.LL);
-                supersystems.ll.start();
-                supersystems.train.trainSetHEading(scoreHeading);
-                supersystems.resetScore();
+                supersystems.train.train_set_heading_goal();
+                supersystems.resetScore(timer);
                 supersystems.updateLLForSHooting();
                 supersystems.aimTurretWithLL();
                if(gamepad1.aWasReleased()){
@@ -113,34 +107,35 @@ public class Teleop extends OpMode {
                 break;
             case SHOOTING:
                 supersystems. score(timer);
-                supersystems.updateTurretPIDs();
-                supersystems.updateLLForSHooting();
                 break;
             case SIDE:
-                supersystems.train.trainSetHEading(sideHeading);
+                supersystems.turret.setShooterSpeed(-400);
+                supersystems.train.train_set_heading_human();
                 supersystems.intakeFromShooter(gamepad1.aWasReleased(), timer);
                 break;
 
+            case UNJAM:
+                supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
+                supersystems.rollers.setIntakeInverse();
+                supersystems.donut.spindexMotor.setPower(0);
+
+                break;
+
             case NOTHING:
+                supersystems.setRollers(false);
+                supersystems.turret.setShooterSpeed(0);
                 break;
         }
 
-        if (currentState == States.NOTHING){
-            supersystems.setRollers(false);
-        }
-        if (currentState != States.PRESHOOTING && currentState != States.SHOOTING && currentState!= States.SIDE){
-            supersystems.ll.stop();
-            supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.STOP);
-            supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
-        }
 
 
 
         telemetryM.debug("case  " + currentState);
         telemetryM.debug("intake state " + supersystems.intakeState);
         telemetryM.debug("shooting state " + supersystems.scorestate);
-        telemetryM.debug(("distance in the front " + supersystems.donut.getFrontDistance()));
-        telemetryM.debug(("distance in the back " + supersystems.donut.getBackDistance()));
+        telemetryM.debug("Shooter Speed "+ supersystems.turret.shooterMotorRight.getVelocity());
+        telemetryM.debug("LL Distance "+supersystems.ll.getDistance() );
+        telemetryM.debug("LL TX "+supersystems.ll.getTx() );
 
         telemetryM.debug("Donuts slots " + supersystems.peekAtSpindex());
         telemetryM.debug("Turn to next " + supersystems.switchToNext);

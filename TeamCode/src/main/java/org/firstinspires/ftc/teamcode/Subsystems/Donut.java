@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -33,6 +34,7 @@ public class Donut {
     }
 
     private SpindexPositions currentPosition;
+    public SpindexPositions pastPosition = SpindexPositions.SHOTER_1;
     public static int spindexIntake1 = 140;
     public static int spindexIntake2 = 240;
     public static int spindexIntake3 = 335;
@@ -54,8 +56,8 @@ public class Donut {
 
     private Servo pushUpServo;
     public enum PushUpPositions{UP, DOWN}
-    public static double pushUpDown = 0;//0.605
-    public static double pushUpUp = 0.55;//0.00
+    public static double pushUpDown = 0.382;
+    public static double pushUpUp = 0.44;
 
     public DistanceSensor backDistanceSensor;
     public  NormalizedColorSensor colorSensorLeft;
@@ -69,12 +71,13 @@ public class Donut {
     public double upperGreenLevel = 180;
 
 
-    public Donut (@NonNull HardwareMap hwMap){
+    public Donut (@NonNull HardwareMap hwMap ){
         spindexMotor = hwMap.get(DcMotorEx.class, "spindexMotor");
         spindexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         spindexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spindexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         spindexMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
         pushUpServo = hwMap.get(Servo.class, "pushUpServo");
 
         colorSensorLeft = hwMap.get(NormalizedColorSensor.class, "colorRight");
@@ -87,44 +90,54 @@ public class Donut {
         switch(pos){
             case INTAKE_1 :
                 spindexTarget = spindexIntake1;
+                pastPosition = currentPosition;
                 currentPosition = SpindexPositions.INTAKE_1;
                 break;
             case INTAKE_2:
                 spindexTarget = spindexIntake2;
+                pastPosition = currentPosition;
                 currentPosition = SpindexPositions.INTAKE_2;
                 break;
             case INTAKE_3:
                 spindexTarget = spindexIntake3;
+                pastPosition = currentPosition;
                 currentPosition = SpindexPositions.INTAKE_3;
                 break;
             case SHOTER_1:
                 if(currentPosition == SpindexPositions.SHOTER_3){
                     spindexTarget = spindexShoter1From3;
+                    pastPosition = currentPosition;
                     currentPosition = SpindexPositions.SHOOTER_1_FROM_3;
                 } else{
                     spindexTarget = spindexShoter1;
+                    pastPosition = currentPosition;
                     currentPosition = SpindexPositions.SHOTER_1;
                 }
                 break;
             case SHOTER_2:
                 spindexTarget = spindexShoter2;
+                pastPosition = currentPosition;
                 currentPosition = SpindexPositions.SHOTER_2;
                 break;
             case SHOTER_3:
                 if(currentPosition == SpindexPositions.SHOTER_1){
                     spindexTarget = spindexShoter3From1;
+                    pastPosition = currentPosition;
                     currentPosition = SpindexPositions.SHOTER_3_FROM_1;
                 } else{
                     spindexTarget = spindexShoter3;
+                    pastPosition = currentPosition;
                     currentPosition = SpindexPositions.SHOTER_3;
                 }
                 break;
             case SHOTER_3_FROM_1:
                 spindexTarget = spindexShoter3From1;
+                pastPosition = currentPosition;
                 currentPosition = SpindexPositions.SHOTER_3_FROM_1;
                 break;
             case SHOOTER_1_FROM_3:
                 spindexTarget = spindexShoter1From3;
+                pastPosition = currentPosition;
                 currentPosition = SpindexPositions.SHOOTER_1_FROM_3;
                 break;
 
@@ -211,6 +224,13 @@ public class Donut {
 
     public double getBackDistance(){
         return backDistanceSensor.getDistance(DistanceUnit.CM);
+    }
+    public void unjam(){
+        ElapsedTime timer = new ElapsedTime();
+        while(timer.seconds()< 1) {
+            setSpindexPosition(pastPosition);
+        }
+
     }
 
 

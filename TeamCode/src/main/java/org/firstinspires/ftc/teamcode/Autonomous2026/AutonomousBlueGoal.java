@@ -1,26 +1,26 @@
 package org.firstinspires.ftc.teamcode.Autonomous2026;
 
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
+import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.TelemetryManager;
-import com.bylazar.telemetry.PanelsTelemetry;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Messenger;
 import org.firstinspires.ftc.teamcode.Subsystems.Supersystems;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import com.pedropathing.geometry.BezierCurve;
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.paths.PathChain;
-import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Auto Red Goal", group = "Autonomous")
+@Autonomous(name = "Auto blue Goal", group = "Autonomous")
 @Configurable // Panels
-public class AutonomousRedGoal extends OpMode {
+public class AutonomousBlueGoal extends OpMode {
     private TelemetryManager panelsTelemetry; // Panels Telemetry instance
     public Follower follower; // Pedro Pathing follower instance
     private int pathState = -1; // Current autonomous path state (state machine)
@@ -35,7 +35,7 @@ public class AutonomousRedGoal extends OpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(125.04280155642026, 118.83268482490271, Math.toRadians(126)));
+        follower.setStartingPose(new Pose(17.084257206208424, 110.53113271847256, Math.toRadians(10)));
 
         paths = new Paths(follower);
         // Build paths
@@ -47,7 +47,7 @@ public class AutonomousRedGoal extends OpMode {
         pathTimer = new Timer();
         superTimer = new ElapsedTime();
 
-        Messenger.allianceColor = "RED";
+        Messenger.allianceColor = "BLUE";
         supersystems = new Supersystems(hardwareMap, true);
         supersystems.setLLforPatternRecognition();
 
@@ -91,54 +91,55 @@ public class AutonomousRedGoal extends OpMode {
             Path1 = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(125.043, 118.833),
-                                    new Pose(84.093, 85.401)
+                                    new Pose(17.404, 110.691),
+                                    new Pose(60.000, 85.401)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(126), Math.toRadians(45))
+                    .setLinearHeadingInterpolation(Math.toRadians(10), Math.toRadians(-136))
                     .build();
 
             Path2 = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(84.093, 85.401),
-                                    new Pose(101.167, 84.047)
+                                    new Pose(60.000, 85.401),
+                                    new Pose(43.000, 84.047)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
                     .build();
 
             Path3 = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(101.167, 84.047),
-                                    new Pose(125.774, 84.047)
+                                    new Pose(43.000, 84.047),
+                                    new Pose(19.000, 84.047)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             Path4 = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(125.774, 84.047),
-                                    new Pose(83.977, 85.374)
+                                    new Pose(19.000, 84.047),
+                                    new Pose(60.000, 85.374)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
                     .build();
 
             Path5 = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(83.977, 85.374),
-                                    new Pose(127.11922489582166, 73.0170912887056)
+                                    new Pose(60.000, 85.374),
+                                    new Pose(17.765, 74.122)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(90))
+                    .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(90))
                     .build();
         }
     }
+
 
     public void autonomousPathUpdate() {
         switch (pathState){
@@ -148,8 +149,10 @@ public class AutonomousRedGoal extends OpMode {
                     pathStarted = true;
                 }
                 supersystems.rollers.intakeMotor.setPower(0.5);
+                supersystems.updateLLForPattern();
+                supersystems.detectAndSavePattern();
                 supersystems.setTurretUpdateMode(Supersystems.TURRET_UPDATE_MODE.LL);
-                supersystems.ll.start();
+
                 supersystems.resetScore(superTimer);
                 supersystems.updateLLForSHooting();
                 supersystems.aimTurretWithLL();
@@ -158,6 +161,7 @@ public class AutonomousRedGoal extends OpMode {
                 }
                 break;
             case 1:
+                supersystems.ll.start();
                 supersystems. score(superTimer);
                 supersystems.update();
                 supersystems.updateLLForSHooting();

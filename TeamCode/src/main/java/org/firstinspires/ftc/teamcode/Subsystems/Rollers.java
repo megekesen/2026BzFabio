@@ -24,7 +24,11 @@ public class Rollers {
         intakeMotor.setPower(1);
     }
 
+
     public void disableIntake(){
         intakeMotor.setPower(0.0);
+    }
+    public void setIntakeInverse(){
+        intakeMotor.setPower(-1);
     }
 }

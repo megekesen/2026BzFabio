@@ -5,5 +5,5 @@ import com.bylazar.configurables.annotations.Configurable;
 @Configurable
 public class Messenger {
      public static String sequence = "GPP";
-     public static String allianceColor = "";
+     public static String allianceColor = "Red";
 }

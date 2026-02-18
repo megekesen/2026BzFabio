@@ -30,8 +30,8 @@ public class DriveTrain {
     public static double rot_kD = 0.0;
 
     //change these for presets
-    public static double goalHeading = 5.5;
-    public static double humanHEading= 1.48;
+    public  double goalHeading = 0.8436133861541748;
+    public double humanHEading= 3.221234083175659;
 
 
     public DriveTrain(@NonNull HardwareMap hwMap){
@@ -161,13 +161,14 @@ public class DriveTrain {
     }
     public void train_set_heading_goal(){
         rot_target = goalHeading;
+        run_rotational = true;
     }
     public void train_set_heading_human(){
+
         rot_target = humanHEading;
+        run_rotational = true;
     }
-    public void trainSetHEading(double heading){
-        rot_target = heading;
-    }
+
 
 
 

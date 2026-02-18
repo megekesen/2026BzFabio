@@ -34,7 +34,6 @@ public class DriveTrainTestAndTune extends OpMode {
     public void loop() {
         fineToggle.readValue();
         drive.DriveCentric(pad1.getLeftX(), pad1.getLeftY(), pad1.getRightX(), pin.getYaw(), fineToggle.getState());
-        drive.trainSetHEading(heading);
 
         telemetryM.debug("Current Heading" + pin.getYaw());
         telemetryM.debug("Target Heading "+ heading);

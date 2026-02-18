@@ -17,18 +17,15 @@ public class Supersystems {
     public PinPoint pin;
 
     public Servo rgb;
-    public Donut.BallColor[] donutSlots = {Donut.BallColor.EMPTY, Donut.BallColor.EMPTY, Donut.BallColor.EMPTY};
+    public Donut.BallColor[] donutSlots = {Donut.BallColor.GREEN, Donut.BallColor.PURPLE, Donut.BallColor.PURPLE};
     public static int intakeState = 0;
     public boolean switchToNext = false;
     public static double timeToWaitForSwitchingSpindex = 1.0;
-    public static double  timeToWaitForShooting = 0.4;
+    public static double  timeToWaitForShooting = 0.8;
     public static double  timeToWaitForPushUp = 0.5;
 
     public int scorestate = 0;
 
-    public static double turretPositionForIntake = 0.5;
-    public static double hoodPositionForIntake = 0.0;
-    public static int shooterSpeedForIntake = -100;
     public static enum TURRET_UPDATE_MODE {LL, STOP, SIDE};
     private TURRET_UPDATE_MODE updateMode = TURRET_UPDATE_MODE.STOP;
 
@@ -161,7 +158,7 @@ public class Supersystems {
         }
     }
     public void intakeFromShooter(boolean switchToNext, ElapsedTime timer){
-        setTurretUpdateMode(TURRET_UPDATE_MODE.SIDE);
+
         switch (intakeState){
             case 0:
                 donut.setSpindexPosition(Donut.SpindexPositions.SHOTER_1);
@@ -270,8 +267,10 @@ public class Supersystems {
     /**
      * use before starting the shooting to reset the state to 0
      */
-    public void resetScore(){
+    public void resetScore(ElapsedTime timer){
+
         scorestate = 0;
+        timer.reset();
     }
     public void setRollers (boolean state){
         if (state){
@@ -468,19 +467,7 @@ public class Supersystems {
     public void setTurretUpdateMode(TURRET_UPDATE_MODE t){
         updateMode = t;
     }
-    public void updateTurretPIDs(){
-        if (updateMode == TURRET_UPDATE_MODE.LL) {
-            turret.updateLL();
-        }else if (updateMode == TURRET_UPDATE_MODE.STOP) {
-            turret.setTurretServoPosition(0.5);
-            turret.setShooterSpeed(0);
-            turret.update();
-        } else if (updateMode ==  TURRET_UPDATE_MODE.SIDE) {
-            turret.setTurretServoPosition(0.5);
-            turret.setShooterSpeed(-500);
-            turret.update();
-        }
-    }
+
 
     public String peekAtSpindex(){
         StringBuilder contents = new StringBuilder("Spindex contents : ");
@@ -495,8 +482,9 @@ public class Supersystems {
     }
 
     public void update (){
-        updateTurretPIDs();
+        turret.update();
         donut.update();
+
 
     }
     public void updateLLForSHooting(){
@@ -517,7 +505,7 @@ public class Supersystems {
         } else if (pattern == 22) {
             Messenger.sequence = "PGP";
             rgb.setPosition(0.5);
-        } else if (pattern == 24) {
+        } else if (pattern == 23) {
             Messenger.sequence = "PPG";
             rgb.setPosition(0.5);
         } else if (pattern == -1) {
@@ -529,4 +517,7 @@ public class Supersystems {
 
         }
     }
+
+
+
 }

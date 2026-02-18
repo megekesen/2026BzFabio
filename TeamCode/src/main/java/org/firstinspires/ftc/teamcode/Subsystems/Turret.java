@@ -20,14 +20,19 @@ public class Turret {
     private Servo turretServo;
 
     private Servo hoodServo;
+    public static double hoodClose = 0.54;
+    public static int shootFar = 1800;
+    public static int shootClose= 1350;
+    public static double hoodFar = 0.525;
+
 
 
 
     private PIDFController speedShooterController;
-    public static double shoterP = 0.0005;
-    public static double shooterI;
-    public static double shooterD;
-    public static double shooterF = 0.00057;
+    public static double shoterP = 0.01;
+    public static double shooterI = 0;
+    public static double shooterD = 0;
+    public static double shooterF = 0.0005;
 
     int speedRPMTarget;
 
@@ -42,10 +47,7 @@ public class Turret {
     private double LLCurentPosition;
     private double distance;
 
-    private PIDController turretController;
-    public static double turretP;
-    public static double turretI;
-    public static double turretD;
+
 
     public double powServo;
 
@@ -66,7 +68,7 @@ public class Turret {
         hoodServo = hwMap.get(Servo.class, "hoodServo");
         speedShooterController = new PIDFController(shoterP, shooterI, shooterD, shooterF);
         turretLLController = new PIDController(turretLLP, turretLLI, turretLLD);
-        turretController = new PIDController(turretP, turretI, turretD);
+
     }
 
     private void shooterPID(){
@@ -141,25 +143,20 @@ public class Turret {
         this.distance = distance;
     }
     public void setTurretWithLimelight(double distance, double tx){
-        //here do a bunch of math to figure our the roller speed and hood extension
-        //if this does not work, picka spot of the field, find the optimal hood position
-        // and roller speed, keep the turret from spinning
-        // and just use that always
 
-        setLLCurrentPosition(tx, distance);
-        if (distance > 100){
-            setShooterSpeed(1600);
-            setHood(0);
-        }else{
-            setShooterSpeed( 1400);
-            setHood(0);
+        //setLLCurrentPosition(tx, distance);
+        if (distance > 250){
+            setShooterSpeed(shootFar);
+            setHood(hoodFar);
+        }else if(distance <250 ){
+            setShooterSpeed( shootClose);
+            setHood(hoodClose);
         }
-        speedRPMTarget = 1600;
     }
 
     public void updateLL(){
         shooterPID();
-        turretLLPID();
+
     }
     public void update(){
         shooterPID();

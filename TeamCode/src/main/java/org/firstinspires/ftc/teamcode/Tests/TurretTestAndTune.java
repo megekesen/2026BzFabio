@@ -25,7 +25,7 @@ public class TurretTestAndTune extends OpMode {
 
     public static double shooterSpeedTarget;
 
-    public static double hoodPosition;
+    public static double hoodPosition = 0.575;
 
     public static boolean useLimeLIght = false;
     private TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -67,7 +67,6 @@ public class TurretTestAndTune extends OpMode {
         donut.update();
 
         if (useLimeLIght){
-            lime.updateAimLL();
             turret.setLLCurrentPosition(lime.getTx(), lime.getDistance());
         }
 
