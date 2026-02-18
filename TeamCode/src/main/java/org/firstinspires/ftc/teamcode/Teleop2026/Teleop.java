@@ -39,8 +39,8 @@ public class Teleop extends OpMode {
         timer = new ElapsedTime();
         if (Messenger.allianceColor.equals("Blue")) {
             supersystems.ll.switchPipeline(Limelight.Pipelines.BLUE_TARGET);
-            supersystems.train.goalHeading = 0.0;
-            supersystems.train.humanHEading = 0.0 ;
+            supersystems.train.goalHeading = -0.8436133861541748;
+            supersystems.train.humanHEading = -3.221234083175659 ;
         } else if (Messenger.allianceColor.equals("Red")) {
             supersystems.ll.switchPipeline(Limelight.Pipelines.RED_TARGET);
         }
