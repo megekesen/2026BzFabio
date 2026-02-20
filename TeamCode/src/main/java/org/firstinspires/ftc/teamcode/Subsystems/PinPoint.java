@@ -18,5 +18,8 @@ public class PinPoint {
         pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
         return pinpoint.getHeading(UnnormalizedAngleUnit.RADIANS);
     }
+    public void resetPinPoint (){
+        pinpoint.resetPosAndIMU();
+    }
 
 }

@@ -95,7 +95,7 @@ public class AutonomousBlueGoal extends OpMode {
                                     new Pose(60.000, 85.401)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(10), Math.toRadians(-136))
+                    .setLinearHeadingInterpolation(Math.toRadians(10), Math.toRadians(135))
                     .build();
 
             Path2 = follower.pathBuilder()

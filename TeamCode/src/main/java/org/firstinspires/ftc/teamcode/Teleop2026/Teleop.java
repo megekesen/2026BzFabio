@@ -42,7 +42,7 @@ public class  Teleop extends OpMode {
         timer = new ElapsedTime();
         if (Messenger.allianceColor.equals("Blue")) {
             supersystems.ll.switchPipeline(Limelight.Pipelines.BLUE_TARGET);
-            supersystems.train.goalHeading = -0.8436133861541748;
+            supersystems.train.goalHeading = -0.8436133861541748;// -0,84
             supersystems.train.humanHEading = -3.221234083175659 ;
         } else if (Messenger.allianceColor.equals("Red")) {
             supersystems.ll.switchPipeline(Limelight.Pipelines.RED_TARGET);
@@ -150,7 +150,7 @@ public class  Teleop extends OpMode {
         telemetryM.debug("Shooter Speed "+ supersystems.turret.shooterMotorRight.getVelocity());
         telemetryM.debug("LL Distance "+supersystems.ll.getDistance() );
         telemetryM.debug("LL TX "+supersystems.ll.getTx() );
-
+        telemetryM.debug("Robot heading" +supersystems.pin.getYaw());
         telemetryM.debug("Donuts slots " + supersystems.peekAtSpindex());
         telemetryM.debug("Turn to next " + supersystems.switchToNext);
 
