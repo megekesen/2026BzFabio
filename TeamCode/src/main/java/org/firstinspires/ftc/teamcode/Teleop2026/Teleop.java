@@ -23,12 +23,15 @@ public class Teleop extends OpMode {
     ToggleButtonReader fineToggle;
     ElapsedTime timer;
 
+
+
     double scoreHeading = 0.0;
     double sideHeading = 0.0;
 
     public enum States {PREINTAKE, INTAKE,PRESHOOTING, SHOOTING, SIDE, NOTHING, UNJAM}
     public States currentState = States.NOTHING;
     private TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+    private TelemetryManager panelsTelemetry; // Panels Telemetry instance
 
 
     @Override
@@ -47,6 +50,9 @@ public class Teleop extends OpMode {
         supersystems.ll.start();
 
         supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
+        telemetryM.debug("Alliance Color " + Messenger.allianceColor);
+        telemetryM.debug("Pattern " + Messenger.sequence);
+
     }
 
     @Override
