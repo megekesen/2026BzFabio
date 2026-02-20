@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Supersystems;
 
 @Configurable
 @TeleOp (name = "Teleop")
-public class Teleop extends OpMode {
+public class  Teleop extends OpMode {
     Supersystems supersystems;
     GamepadEx pad1;
     ToggleButtonReader fineToggle;
@@ -52,7 +52,15 @@ public class Teleop extends OpMode {
         supersystems.donut.setPushUpServoPosition(Donut.PushUpPositions.DOWN);
         telemetryM.debug("Alliance Color " + Messenger.allianceColor);
         telemetryM.debug("Pattern " + Messenger.sequence);
+        telemetryM.update(telemetry);
 
+    }
+    @Override
+    public void init_loop(){
+
+        telemetryM.debug("Alliance Color " + Messenger.allianceColor);
+        telemetryM.debug("Pattern " + Messenger.sequence);
+        telemetryM.update(telemetry);
     }
 
     @Override
