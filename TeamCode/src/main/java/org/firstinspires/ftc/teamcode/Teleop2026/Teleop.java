@@ -87,6 +87,9 @@ public class  Teleop extends OpMode {
             currentState = States.UNJAM;
             timer.reset();
         }
+        if(gamepad1.backWasReleased()){
+            supersystems.pin.recalibrateIMU();
+        }
 
         supersystems.train.DriveCentric(pad1.getLeftX(), pad1.getLeftY(), pad1.getRightX(), supersystems.pin.getYaw(), fineToggle.getState());
 

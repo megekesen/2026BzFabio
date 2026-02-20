@@ -22,4 +22,9 @@ public class PinPoint {
         pinpoint.resetPosAndIMU();
     }
 
+    public void recalibrateIMU(){
+        pinpoint.recalibrateIMU();
+    }
+
+
 }
